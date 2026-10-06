@@ -1,0 +1,399 @@
+/* Application shell: sidebar, top bar, page container, page header, grids, responsive rules. */
+
+/* ---- page container ------------------------------------------------------------------------- */
+[data-testid="stMainBlockContainer"] {
+  max-width: var(--content-max);
+  padding: 0 var(--gutter) 3rem;
+  margin: 0 auto;
+}
+[data-testid="stMain"] {
+  background: var(--bg);
+  overflow-x: hidden;
+}
+[data-testid="stVerticalBlock"] {
+  gap: 0.75rem;
+}
+
+/* ---- sidebar ---------------------------------------------------------------------------------- */
+[data-testid="stSidebar"] {
+  background: #fcfcfa;
+  border-right: 1px solid var(--border);
+}
+[data-testid="stSidebar"] > div:first-child {
+  background: transparent;
+}
+[data-testid="stSidebarHeader"] {
+  height: 0;
+  min-height: 0;
+  padding: 0;
+  margin: 0;
+}
+[data-testid="stSidebarCollapseButton"] {
+  position: absolute;
+  top: 0.9rem;
+  right: 0.6rem;
+  z-index: 5;
+}
+[data-testid="stSidebarUserContent"] {
+  padding: 1.1rem 0.9rem 1.25rem;
+}
+[data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
+  gap: 0.5rem;
+}
+
+/* brand lockup */
+.eis-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 2px 6px 14px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+.eis-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: var(--accent);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+.eis-mark .eis-icon {
+  font-size: 18px;
+}
+.eis-brand-name {
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  line-height: 1.15;
+}
+.eis-brand-sub {
+  font-size: 10.5px;
+  color: var(--muted);
+  letter-spacing: 0.01em;
+  line-height: 1.25;
+}
+
+/* navigation: the page radio, restyled as a grouped list. Group headings and icons are generated
+   per page by components/sidebar.py (CSS cannot know which page is which). */
+[data-testid="stSidebar"] [data-testid="stRadio"] > label[data-testid="stWidgetLabel"] {
+  display: none;
+}
+[data-testid="stSidebar"] [data-testid="stRadioGroup"] {
+  gap: 1px;
+}
+[data-testid="stSidebar"] [data-testid="stRadioGroup"] > div {
+  position: relative;
+}
+[data-testid="stSidebar"] [data-testid="stRadioOption"] {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 34px;
+  padding: 0 10px 0 36px;
+  border-radius: var(--radius);
+  border-left: 2px solid transparent;
+  cursor: pointer;
+  color: var(--text-2);
+  transition: background var(--ease), color var(--ease);
+}
+[data-testid="stSidebar"] [data-testid="stRadioOption"] > div > div:not([data-testid]) {
+  display: none;
+}
+[data-testid="stSidebar"] [data-testid="stRadioOption"] p {
+  font-size: 13.5px;
+  font-weight: 480;
+  color: inherit;
+  margin: 0;
+}
+[data-testid="stSidebar"] [data-testid="stRadioOption"]::before {
+  content: attr(data-eis-icon);
+  font-family: "Material Symbols Rounded";
+  font-size: 18px;
+  line-height: 1;
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-variation-settings: "FILL" 0, "wght" 400, "opsz" 20;
+  transition: color var(--ease);
+}
+[data-testid="stSidebar"] [data-testid="stRadioOption"]:hover {
+  background: var(--surface-3);
+  color: var(--text);
+}
+[data-testid="stSidebar"] [data-testid="stRadioOption"]:hover::before {
+  color: var(--text-2);
+}
+[data-testid="stSidebar"] [data-testid="stRadioOption"][data-selected="true"] {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-left-color: var(--accent);
+}
+[data-testid="stSidebar"] [data-testid="stRadioOption"][data-selected="true"] p {
+  font-weight: 600;
+}
+[data-testid="stSidebar"] [data-testid="stRadioOption"][data-selected="true"]::before {
+  color: var(--accent);
+  font-variation-settings: "FILL" 1, "wght" 500, "opsz" 20;
+}
+/* the radio's captions (one line per page) are replaced by the page header */
+[data-testid="stSidebar"] [data-testid="stRadioCaption"] {
+  display: none;
+}
+/* group heading: a ::before on the option wrapper, whose text is generated per page */
+[data-testid="stSidebar"] [data-testid="stRadioGroup"] > div::before {
+  font-size: 10.5px;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 14px 10px 5px;
+}
+.eis-nav-group {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 14px 10px 5px;
+}
+
+/* sidebar footer: what the pilot covers */
+.eis-pilot {
+  margin-top: 6px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.eis-pilot-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.eis-pilot-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12.5px;
+  color: var(--text-2);
+  padding: 2px 0;
+}
+.eis-pilot-row b {
+  font-weight: 600;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+[data-testid="stSidebar"] [data-testid="stAlert"] {
+  font-size: 12px;
+}
+[data-testid="stSidebar"] [data-testid="stCheckbox"] label p,
+[data-testid="stSidebar"] [data-testid="stToggle"] label p {
+  font-size: 12.5px;
+  color: var(--text-2);
+}
+
+/* ---- top bar ---------------------------------------------------------------------------------- */
+/* sticky lives on Streamlit's layout wrapper (the topbar's parent), or it could not leave its own box */
+[data-testid="stLayoutWrapper"]:has(> .st-key-eis-topbar) {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.st-key-eis-topbar {
+  position: relative;
+  margin: 0 calc(var(--gutter) * -1);
+  padding: 0.55rem var(--gutter);
+}
+/* the bar's background and rule run edge to edge even though the content column is capped */
+.st-key-eis-topbar::before {
+  content: "";
+  position: absolute;
+  inset: 0 -100vmax;
+  z-index: -1;
+  background: rgba(245, 245, 242, 0.94);
+  backdrop-filter: saturate(1.4) blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+.st-key-eis-topbar [data-testid="stHorizontalBlock"] {
+  align-items: center;
+  gap: 0.75rem;
+}
+.eis-topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.eis-topbar-title {
+  font-size: 14px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+.eis-topbar-sub {
+  font-size: 11.5px;
+  color: var(--muted);
+}
+.eis-status {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+.eis-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ok);
+  box-shadow: 0 0 0 3px var(--ok-soft);
+  flex: none;
+}
+.eis-dot.warn {
+  background: #c28a00;
+  box-shadow: 0 0 0 3px var(--warn-soft);
+}
+.st-key-eis-search [data-baseweb="select"] > div {
+  background: var(--surface);
+  min-height: var(--control-h);
+}
+.st-key-eis-help button {
+  width: auto;
+}
+/* when the sidebar is collapsed Streamlit's expand button sits over the left edge */
+[data-testid="stApp"]:has([data-testid="stSidebar"][aria-expanded="false"]) .eis-topbar-brand {
+  margin-left: 2.25rem;
+}
+
+/* ---- page header ------------------------------------------------------------------------------ */
+.eis-crumbs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  margin: 1.1rem 0 0.35rem;
+}
+.eis-crumbs .sep {
+  color: var(--muted);
+}
+.eis-crumbs .here {
+  color: var(--text-2);
+  font-weight: 520;
+}
+.eis-title {
+  font-size: 24px;
+  font-weight: 650;
+  letter-spacing: -0.022em;
+  line-height: 1.2;
+  margin: 0;
+  color: var(--text);
+}
+.eis-subtitle {
+  font-size: 14px;
+  color: var(--muted);
+  margin: 4px 0 0;
+  max-width: 78ch;
+}
+/* "What this page shows" and "What is being compared" keep their original text; the bold lead-in
+   becomes a small label, so the scope of every page reads the same way. */
+.st-key-eis-scope {
+  margin: 0.9rem 0 0.2rem;
+  padding: 0.7rem 0.95rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent-2);
+  border-radius: var(--radius);
+}
+.st-key-eis-scope {
+  gap: 0.3rem !important;
+}
+.st-key-eis-scope p {
+  font-size: 13px;
+  color: var(--text-2);
+  margin: 0;
+}
+.st-key-eis-scope p > strong:first-child {
+  display: inline-block;
+  min-width: 9.5em;
+  font-size: 10.5px;
+  font-weight: 650;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.st-key-eis-scope [data-testid="stCaptionContainer"] p {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.eis-rule {
+  height: 1px;
+  background: var(--border);
+  margin: 1rem 0 0.5rem;
+}
+
+/* ---- grids ------------------------------------------------------------------------------------- */
+.eis-grid {
+  display: grid;
+  gap: 12px;
+}
+.eis-grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.eis-grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.eis-grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.eis-grid.cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.eis-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+/* ---- footer ------------------------------------------------------------------------------------ */
+.st-key-eis-footer {
+  margin-top: 2.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+.st-key-eis-footer p {
+  font-size: 12px;
+  color: var(--muted);
+  max-width: 100ch;
+}
+
+/* ---- responsive --------------------------------------------------------------------------------
+   1920 and 1440: the container caps at --content-max and centres. 1280 and below: tighter gutters
+   and fewer grid columns. Wide tables scroll inside their own wrapper, never the page. */
+@media (max-width: 1280px) {
+  :root { --gutter: 1.5rem; }
+  .eis-grid.cols-5 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .eis-grid.cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 1000px) {
+  :root { --gutter: 1rem; }
+  .eis-grid.cols-3,
+  .eis-grid.cols-5 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .eis-split { grid-template-columns: minmax(0, 1fr); }
+  .st-key-eis-scope p > strong:first-child { display: block; min-width: 0; }
+}
+@media (max-width: 760px) {
+  /* the top bar's columns stack on a phone; a tall sticky bar would eat the screen, so it scrolls away */
+  [data-testid="stLayoutWrapper"]:has(> .st-key-eis-topbar) { position: static; }
+  .eis-status { justify-content: flex-start; white-space: normal; }
+}
+@media (max-width: 640px) {
+  .eis-grid.cols-2,
+  .eis-grid.cols-3,
+  .eis-grid.cols-4,
+  .eis-grid.cols-5 { grid-template-columns: minmax(0, 1fr); }
+  .eis-title { font-size: 21px; }
+}

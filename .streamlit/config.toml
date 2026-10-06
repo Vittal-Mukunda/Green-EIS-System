@@ -1,0 +1,33 @@
+[server]
+headless = true
+
+[browser]
+gatherUsageStats = false
+
+# Green EIS design tokens, mirrored in dashboard/styles/theme.css. The native theme styles what CSS
+# cannot reach (the dataframe canvas, chart defaults); the CSS adds the rest of the product look.
+[theme]
+base = "light"
+primaryColor = "#14532d"
+backgroundColor = "#f5f5f2"
+secondaryBackgroundColor = "#ffffff"
+textColor = "#18211d"
+linkColor = "#285d8f"
+linkUnderline = false
+borderColor = "#e3e3dd"
+dataframeBorderColor = "#e3e3dd"
+dataframeHeaderBackgroundColor = "#f1f1ed"
+showWidgetBorder = true
+showSidebarBorder = true
+baseRadius = "6px"
+buttonRadius = "6px"
+baseFontSize = 14
+font = "sans-serif"
+headingFont = "sans-serif"
+codeFont = "monospace"
+chartCategoricalColors = ["#24557a", "#2e7d5b", "#b7791f", "#8c5a7a", "#5f7f8c", "#9c3a30", "#6b705c", "#4a6fa5"]
+chartSequentialColors = ["#e2e9ef", "#b9cad8", "#8aa9c2", "#5a82a3", "#24557a"]
+
+[theme.sidebar]
+backgroundColor = "#fcfcfa"
+secondaryBackgroundColor = "#f1f1ed"

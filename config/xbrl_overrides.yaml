@@ -1,0 +1,41 @@
+# Human-verified unit/scale decisions for values whose XBRL unit label does not determine the unit.
+# Each entry needs EVIDENCE (a filing page, or a field in the same filing). The loader applies an
+# override instead of its own rules and records it as a quality flag (`xbrl_override_applied`).
+#
+# Format:
+#   - isin: <ISIN>
+#     fy: [<fiscal years>]            # the fiscal years of the VALUES this applies to
+#     indicators: [<indicator codes>]
+#     unit: "<our unit spelling>"      # see src/gauge/standardize/units.py
+#     evidence: "<where it was verified>"
+
+overrides:
+  - isin: INE081A01020      # Tata Steel Limited
+    fy: ["FY2025-26", "FY2024-25"]
+    indicators: [scope1_emissions, scope2_emissions]
+    unit: "Mn MT"
+    evidence: "BRSR PDF (BRSR_500470_03062026200558.pdf) p.48: 'Total Scope 1 emissions Million tonnes CO2e 64 61'. The XBRL carries the same Non-SI:MtCO2e label that UltraTech uses for plain tonnes."
+
+  - isin: INE030A01027      # Hindustan Unilever Limited
+    fy: ["FY2025-26", "FY2024-25"]
+    indicators: [revenue_from_operations]
+    unit: "INR crore"
+    evidence: "Same filing: Section A TotalRevenueOfTheCompany = 657,250,000,000 INR (absolute) against RevenueFromOperations = 63,493, i.e. INR crore (ratio ~1e-7). The BRSR PDF (BRSR_500696_02062026222452.pdf) p.32 states its intensities 'per crore'."
+
+  - isin: INE239A01024      # Nestle India Limited
+    fy: ["FY2025-26", "FY2024-25"]
+    indicators: [revenue_from_operations]
+    unit: "INR million"
+    evidence: "Same filing: Section A Turnover = 230,714,626,515 INR (absolute) against RevenueFromOperations = 230,715, i.e. INR million. No PDF was supplied for Nestle; verify against it when available."
+
+  - isin: INE481G01011      # UltraTech Cement Limited
+    fy: ["FY2023-24", "FY2022-23"]
+    indicators: [revenue_from_operations]
+    unit: "INR crore"
+    evidence: "FY2023-24 filing (taxonomy in-capmkt-ent-2024-04-30): Turnover = 698,095,300,000 INR against RevenueFromOperations = 70,908.14 (ratio 0.985 if that revenue is read in crore). The previous-year RevenueFromOperations is 63,239.98, the same scale. TotalRevenueOfTheCompany repeats those two figures, so it is not an absolute-rupee anchor."
+
+  - isin: INE114A01011      # Steel Authority of India Limited
+    fy: ["FY2024-25"]
+    indicators: [revenue_from_operations]
+    unit: "INR thousand"
+    evidence: "FY2025-26 filing: previous-year revenue 985,697,200 against current-year 1,108,102,400,000 (ratio 1/1124), and the PDF (SAIL_01092026170118_BRSR_2526.pdf) p.34 shows the previous-year energy intensity ~1000x the current one. Replace by SAIL's own FY2024-25 filing, which should state the scale directly."

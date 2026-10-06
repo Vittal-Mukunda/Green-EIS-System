@@ -1,0 +1,37 @@
+# Study configuration (spec §4.1, §4.7). Loaded and validated by gauge.config.load_study().
+# Rules and prompt templates are NOT configured here: they live in registry/ and are frozen.
+
+study:
+  name: "LLM Gauge: multi-LLM interpretation of BRSR environmental evidence"
+  analysis_fy: "FY2024-25"
+  trend_fys: ["FY2022-23", "FY2023-24", "FY2024-25"]   # oldest first; last == analysis_fy
+  companies_per_sector: 5          # 5 -> 20 companies in total; may be raised to 10
+  sectors:                         # `code` is the masking prefix, e.g. CEM-03
+    - {name: "Cement",        code: "CEM"}
+    - {name: "Iron & Steel",  code: "STL"}
+    - {name: "IT Services",   code: "ITS"}
+    - {name: "FMCG",          code: "FMC"}
+
+runs:
+  conditions: ["C1", "C2"]
+  repetitions: 2
+  master_seed: 42                  # per-run seeds are derived from this; logged for every run
+  pause_seconds: 20                # pause between runs (hard rule 11)
+  rep2_min_gap_minutes: 60         # repetition >= 2 starts at least this long after repetition 1
+  models_file: "config/models.yaml"
+
+stats:
+  bootstrap_resamples: 2000        # resampling over companies
+  ci_level: 0.95
+  alpha: 0.05
+  holm_within_family: true
+
+paths:
+  database_url: "sqlite:///data/processed/gauge.db"
+  indicators_file: "config/indicators.yaml"
+  raw_data_dir: "data/raw"
+  rules_dir: "registry/rules"
+  prompts_registry_dir: "registry/prompts"
+  frozen_manifest: "registry/frozen_manifest.json"
+  runs_dir: "runs"
+  sandbox_dir: "runs/sandbox"

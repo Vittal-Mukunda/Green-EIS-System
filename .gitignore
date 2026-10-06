@@ -1,0 +1,36 @@
+# secrets
+.env
+
+# python
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+.venv/
+
+# source filings (spec §3: data/raw is gitignored; provenance is recorded in the DB)
+data/raw/*
+!data/raw/.gitkeep
+
+# SQLite side files (the .db itself is kept: it holds human annotations)
+*.db-journal
+*.db-wal
+*.db-shm
+
+# dry-run scratch space (synthetic; rebuilt by `make all-dry`)
+dry/
+
+# runs/sandbox must stay empty (hard rule 1); runs/raw and runs/prompts are study data and ARE tracked
+runs/sandbox/*
+
+# local preview launcher (holds a machine-specific path)
+.claude/
+
+# notebooks
+.ipynb_checkpoints/
+
+# previews built from candidate companies (never frozen, never study data)
+runs/provisional/
