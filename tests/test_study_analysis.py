@@ -125,3 +125,16 @@ def test_real_looking_data_is_not_marked_synthetic():
     frame = synthetic.generate(300, 2).assign(synthetic=False)
     result = run_study(frame, "csv", "reported to the government", seed=2, n_boot=100)
     assert result["provenance"]["synthetic"] is False and result["provenance"]["banner"] == ""
+
+
+def test_descriptives_break_the_proxy_errors_down_by_item():
+    data = study(n=400)
+    by_item = analysis.descriptives(data)["item_errors_by_item"]
+    assert "grid_electricity" in by_item and "coal" in by_item
+    for item, cols in by_item.items():
+        for col in ("eps_estimated", "eps_default"):
+            assert cols[col]["n"] > 0 and 0 <= cols[col]["median_abs"] <= cols[col]["q90_abs"], item
+    # the pooled figure sits between the per-item extremes (it is a mix of them)
+    pooled = analysis.descriptives(data)["item_errors"]["eps_estimated"]["median_abs"]
+    meds = [c["eps_estimated"]["median_abs"] for c in by_item.values()]
+    assert min(meds) <= pooled <= max(meds)

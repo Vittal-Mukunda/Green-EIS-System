@@ -4,6 +4,47 @@ Status: **proposal, not adopted.** It changes the study's reference data and the
 needs your decision (see §9). Facts marked *unverified* have not been checked against the ASI files; checking
 them is the first step (§7).
 
+> **Update 2026-10-25 (later):** the 2023-24 unit-level file turned out to be publicly downloadable. It was
+> downloaded, parsed and the pre-specified study was run on it; see `docs/RESULTS_ASI_2023-24.md`. The
+> findings below about the schedule were confirmed on the real file (counts in DATA_INVENTORY.md). Earlier
+> rounds still need the free login.
+
+## 0. What the 2022-23 documentation actually shows (read 2026-10-25)
+
+I downloaded and read four public documents of the 2022-23 round (catalog 205: data structure, schedule,
+code list, block guidelines). This replaces several assumptions below.
+
+**Good news**
+- The unit-level data are described as "freely available for download on the Ministry's website"
+  (block-wise guidelines). 68,462 factories in Block A; 592,670 input-item rows in Block H.
+- **Block H** (indigenous input items) has, per factory and item: NPCMS item code, unit code, **quantity
+  consumed**, **purchase value (Rs)** and **rate per unit (Rs)**. That is the pair the study needs.
+- The fuel lines are fixed codes with fixed units, so the item mapping is trivial:
+
+| Schedule line | NPCMS code | Unit | Library item |
+|---|---|---|---|
+| Electricity purchased and consumed | 9990500 | kWh | `grid_electricity` |
+| Coal consumed | 9990700 | tonne | `coal` (grade unknown, flagged) |
+| Gas consumed | 9990900 | kg | **ambiguous**: LPG or natural gas (V-29) |
+
+- Scale and grouping variables exist: Block A has state (A7), 4-digit industry (A4), total cost of
+  production (COSTOP) and a survey multiplier (MULT); Block E has average persons worked (E_I6).
+- Only **Blocks A, E and H** are needed.
+
+**Bad news (changes what H4 and H5 can say)**
+- **Liquid fuels are lumped.** "Petrol, diesel, oil, lubricants" (9990600) and "Other fuel" (9920400)
+  have **no unit** in the schedule, so a quantity cannot be converted to emissions. Diesel and furnace oil,
+  important for small units in CSTEP's data, are therefore **not usable** from ASI.
+- So each factory has at most **three** usable items (electricity, coal, gas). The hotspot tests (H4, H5)
+  would compare at most three activities, and only factories using coal or gas have two or more.
+- The ASI covers registered factories (the smallest are about 10 workers with power), not informal units.
+- Data files come as `.txt` (conversion tool needs a Visual FoxPro runtime) or `.dta`, `.sav`, `.dbf`
+  (pandas reads `.dta`; pick that format).
+- Whether the portal download needs a login or signed undertakings is still unread (V-18).
+
+**What still has to be checked on a real file:** how many factories report coal or gas with both quantity
+and value; whether the rate per unit is the factory's own entry; the unit codes (HI4) for the three lines.
+
 ## 1. Why consider it
 
 Route A (BEE unit audits) is not retrievable today (DATA_INVENTORY.md). The Annual Survey of Industries
@@ -25,7 +66,7 @@ spend-based estimate and of a sector default can be measured directly, at a samp
 | Class "Measured" | the reference | renamed **Reported** and used as the reference only |
 | Class "Estimated" | proxy from audit fields (spend ÷ price, hours × rating) | **spend ÷ typical price** only (price = leave-one-out median unit value of the same item, same state and year) |
 | Class "Default" | cluster-typical value × size | **sector median intensity × factory scale** (leave-one-out; scale = output value or employees) |
-| Units | small units in named clusters | **registered factories**, restricted to small ones (employees ≤ *placeholder* 50) in selected sectors |
+| Units | small units in named clusters | **registered factories**, restricted to small ones (average persons worked ≤ *placeholder* 50) in selected sectors; **only electricity, coal and gas** (see §0) |
 | N | tens of units | thousands (*to be verified*) |
 | "Informal" framing | direct | **weakened**: ASI excludes the informal sector; say "small registered factories as a stand-in" |
 
@@ -44,7 +85,8 @@ data-class labels** for small units, not the emission arithmetic.
 - Fuel, electricity and water block: item code, quantity, unit, purchase value; electricity purchased
   (kWh, value) and own generation.
 - Code list mapping item codes to fuels; schedule and instruction manual (to see how quantity is defined).
-- Rounds: start with 2021-22 (catalog 188), 2022-23 (205), 2023-24 (256); 2020-21 (275) if needed.
+- Rounds: 2022-23 (catalog 205) is documented; 2021-22 (188) and 2023-24 (256) can add years if the layout matches (unchecked).
+- Needed blocks only: A (state, industry, cost of production, multiplier), E (persons), H (input items).
 
 ## 5. Derivations and outcomes (same machinery as the main design)
 
@@ -74,9 +116,7 @@ sizes and intervals, not p-values alone.
 1. **You** register on `microdata.gov.in` and read the access policy (I cannot create the account or
    accept terms). Tell me anything unusual in it (fees, approval delay, restrictions on thesis or
    publication use).
-2. With your approval I download only the **documentation** (data structure, code list, schedule,
-   instruction manual for 2022-23; expected a few MB) and confirm: is fuel **quantity** present per item,
-   in which units, how many item codes.
+2. **Done 2026-10-25** (§0): quantity and value exist, but only for electricity, coal and gas.
 3. **Go** if the documentation shows quantity and value per fuel item, and a count of small factories with
    ≥ 1 fuel item with both fields exceeds *placeholder* 2,000 in ≥ 2 sectors (taken from published
    tabulations or a first small extract). Otherwise this option is dropped.

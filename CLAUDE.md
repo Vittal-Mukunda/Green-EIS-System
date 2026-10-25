@@ -91,10 +91,13 @@ src/greeneis/
   recommend.py     rule library (ref Table 6.4) with sources and cautions
   report.py        one-page Markdown report with the standing method note
   study/           cases.py (input shape), proxies.py (leave-one-out), outcomes.py (profiles, H5),
-                   analysis.py (H1-H5, cluster bootstrap, Holm), synthetic.py, run.py (CLI)
+                   analysis.py (H1-H5, cluster bootstrap, Holm), asi.py (ASI reader and case table),
+                   synthetic.py, run.py (CLI: --source synthetic | csv | asi)
 dashboard/         the interface (see docs/UI_DESIGN.md)
 tests/             130+ tests; hand-worked literals; see the docstring at the top of each file
-docs/              RESEARCH_DESIGN, PHASE1_SPEC, DATA_INVENTORY, ASI_OPTION, STUDY_RUNBOOK, VERIFY, UI_DESIGN
+docs/              RESEARCH_DESIGN, RESULTS_ASI_2023-24, PHASE1_SPEC, DATA_INVENTORY, ASI_OPTION,
+                   STUDY_RUNBOOK, VERIFY, UI_DESIGN
+C:/Users/vitta/greeneis-data/asi/ASI24m.TXT   the 610 MB ASI file, kept OUTSIDE the OneDrive project; terms unread
 ```
 
 ## 5. Interface conventions
@@ -117,7 +120,7 @@ docs/              RESEARCH_DESIGN, PHASE1_SPEC, DATA_INVENTORY, ASI_OPTION, STU
 | Factor library, engine | built; hand-checked against ref §7 and CSTEP; grid factor verified against CEA v20.0 (V-01) |
 | Validation | all 56 CSTEP Table 8 cells recomputed: 43 match, 13 flagged (furnace oil 2012-13 on, naphtha all years, LPG 2015-16); causes unknown (V-06, V-22) |
 | Trust, hotspots, cost, what-if, recommendations, report | built and tested; trust values are placeholders (V-11) |
-| Study harness H1-H5 | built and tested on hand-worked cases; runs end to end on **synthetic** data only (labelled); never run on real data |
+| Study harness H1-H5 | built and tested; **run on real data (ASI 2023-24) on 2026-10-25**, exactly as pre-specified: all five supported, with caveats (H5 rests on 67 factories, H3 is largely structural, pooled results are 90% electricity); see `docs/RESULTS_ASI_2023-24.md` |
 | Dashboard | eight pages on the kept design system; verified in the browser and by AppTest |
-| Data gate (1a) | **not met, not failed**: BEE unit audits removed from the live site (V-08); six public documents downloaded to `data/reference/` hold no unit data; `docs/ASI_OPTION.md` awaits the owner |
-| Real-data run | **blocked on the owner**: teacher's view on ASI, registration, documentation, archived BEE copies (`docs/STUDY_RUNBOOK.md` section A) |
+| Data gate (1a) | **met for one year**: the ASI 2023-24 file is public and was downloaded (V-18: terms still unread). BEE unit audits remain unavailable (V-08); the Wayback copies are rate-limited (V-36) |
+| Real-data follow-up | needs the owner: teacher's view on ASI, the portal's terms, free login for 2022-23 and 2021-22 (held-out years), per-fuel calibration (`docs/STUDY_RUNBOOK.md` section A) |

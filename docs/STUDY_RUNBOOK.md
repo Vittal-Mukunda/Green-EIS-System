@@ -5,18 +5,16 @@ and exactly what to run afterwards. Python is `C:\Users\vitta\.venvs\eis-gauge\S
 
 ## A. Your steps (I cannot do these)
 
+The 2023-24 ASI data are already downloaded and analysed (RESULTS_ASI_2023-24.md). What is left:
+
 1. **Ask your teacher** whether small registered factories (ASI) are acceptable as a stand-in for informal
-   units. If not, ASI is out and the fallback is the synthetic-unit design, which drops H1-H3
-   (RESEARCH_DESIGN §5).
-2. **Register at microdata.gov.in** (free) and read the access policy. Tell me anything about fees,
-   approval delays or limits on thesis or publication use. I cannot create the account or accept terms.
-3. **Archived BEE audits (optional but best):** after archive.org stops answering 429, look for snapshots of
-   the unit audits listed in `docs/DATA_INVENTORY.md`. Tell me which units have one.
-4. **Decide** the open items in `docs/RESEARCH_DESIGN.md` §9 and `docs/ASI_OPTION.md` §9
-   (nominal 90% reading of the ranges, AR5 vs AR6, employee cut-off, sectors).
-5. When registered, download the ASI **documentation** for 2022-23 (data structure, code list, schedule,
-   instruction manual) and give it to me. I will check that fuel quantity exists per item and write the
-   item-code mapping (V-19, V-28). Only then download a unit-level file.
+   units, and whether results from one survey year are enough.
+2. **Read the portal's terms of use** (microdata.gov.in, "Policies and Guidelines") and tell me anything
+   about limits on thesis or publication use or on sharing. I read none of it; I only downloaded the public file.
+3. **Register (free) and download Blocks A, E and H of ASI 2022-23 and 2021-22**, `.dta` format, unedited. They
+   let calibration be tested on a year it was not fitted on. Creating the account is yours.
+4. Optional: send the Wayback copies of BEE audits or anything from TERI (see DATA_INVENTORY.md).
+5. **Decide** the open items in `docs/RESEARCH_DESIGN.md` §9 and `docs/ASI_OPTION.md` §9.
 
 ## B. The input the study needs
 

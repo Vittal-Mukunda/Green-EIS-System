@@ -18,9 +18,11 @@ Working notes, decisions and rules for Claude Code: [CLAUDE.md](CLAUDE.md).
 
 Built and tested: factor library, emission engine (checked against the reference document's worked example
 and CSTEP's published tables), trust score, hotspots and cost link, what-if scenarios, recommendations,
-one-page report, the study harness for the five hypotheses, and an eight-page dashboard. **Not done:** the
-study has never run on real data; the trust scores are uncalibrated placeholders; the data source is
-undecided (see [docs/DATA_INVENTORY.md](docs/DATA_INVENTORY.md) and [docs/ASI_OPTION.md](docs/ASI_OPTION.md)).
+one-page report, the study harness for the five hypotheses, and an eight-page dashboard. The study has been
+run once on real data (ASI 2023-24 factory returns): see [docs/RESULTS_ASI_2023-24.md](docs/RESULTS_ASI_2023-24.md)
+for what it does and does not show. **Not done:** the trust scores are still uncalibrated placeholders; the
+ASI terms of use are unread; calibration is untested on a second year (see
+[docs/DATA_INVENTORY.md](docs/DATA_INVENTORY.md)).
 The previous project is archived as the git tag `archive/llm-gauge`.
 
 ## Run (Windows, PowerShell)

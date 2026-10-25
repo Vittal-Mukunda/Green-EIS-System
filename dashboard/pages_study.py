@@ -93,6 +93,7 @@ def study_results(ctx: state.Context) -> None:
                 PLAIN.get(name, t["statement"]),
                 Html(badge(t["verdict"].capitalize(), VERDICT_TONE.get(t["verdict"], ""))),
                 f"{p:.4f}" if p is not None else None,
+                f"{t['n_rows']:,}",
                 f"{t['n_clusters']:,}",
             ]
         )
@@ -103,10 +104,16 @@ def study_results(ctx: state.Context) -> None:
                 Column("In plain words"),
                 Column("Verdict"),
                 Column("Adjusted p", numeric=True),
+                Column("Rows", numeric=True),
                 Column("Clusters", numeric=True),
             ],
             rows,
         )
+    )
+    st.caption(
+        "A verdict that rests on few rows is weak even when it says Supported: compare the Rows column. "
+        "Pooled results are dominated by the item with the most records. "
+        "What each result does and does not show is written up in docs/RESULTS_ASI_2023-24.md."
     )
     for name, t in result["tests"].items():
         with st.expander(f"{name} detail: {t['statement']}"):
@@ -116,6 +123,38 @@ def study_results(ctx: state.Context) -> None:
                 st.markdown(f"- **{k.replace('_', ' ')}:** {_fmt(v)}")
             if t.get("note"):
                 st.caption(t["note"])
+
+    by_item = result["descriptives"].get("item_errors_by_item", {})
+    if by_item:
+        section(
+            "Error of each proxy, by fuel",
+            "Absolute relative error; the pooled figures are dominated by the biggest item",
+        )
+        render(
+            table_html(
+                [
+                    Column("Item"),
+                    Column("Records", numeric=True),
+                    Column("Estimated: median", numeric=True),
+                    Column("Estimated: 90th percentile", numeric=True),
+                    Column("Default: median", numeric=True),
+                    Column("Default: 90th percentile", numeric=True),
+                ],
+                [
+                    [
+                        item,
+                        f"{d['eps_estimated']['n']:,}",
+                        f"{d['eps_estimated']['median_abs'] * 100:.0f}%",
+                        f"{d['eps_estimated']['q90_abs'] * 100:.0f}%",
+                        f"{d['eps_default']['median_abs'] * 100:.0f}%",
+                        f"{d['eps_default']['q90_abs'] * 100:,.0f}%",
+                    ]
+                    for item, d in sorted(
+                        by_item.items(), key=lambda kv: -kv[1]["eps_estimated"]["n"]
+                    )
+                ],
+            )
+        )
 
     desc = result["descriptives"].get("by_profile", {})
     if desc:

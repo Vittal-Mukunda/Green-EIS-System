@@ -428,6 +428,19 @@ def descriptives(data: StudyData) -> dict:
             for name, grp in g
         }
     it = data.items
+    if len(it) and "item_id" in it:
+        # descriptive only: the pooled figures below are dominated by whichever item has most rows
+        out["item_errors_by_item"] = {
+            item: {
+                col: {
+                    "n": int(g[col].notna().sum()),
+                    "median_abs": float(g[col].abs().median()),
+                    "q90_abs": float(g[col].abs().quantile(0.9)),
+                }
+                for col in ("eps_estimated", "eps_default")
+            }
+            for item, g in it.groupby("item_id")
+        }
     if len(it):
         out["item_errors"] = {
             c: {

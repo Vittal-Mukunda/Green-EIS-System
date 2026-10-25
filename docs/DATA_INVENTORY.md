@@ -95,3 +95,54 @@ Unknown: whether the annexure volumes (Pali Vol. I-VI) exist anywhere online. Wo
 - Route A fails, Route C is accessible → redesign around reported-vs-derived (new owner review; H1-H2
   reworded, "measured" no longer claimed).
 - Neither → **Tier B** (synthetic from cluster tables), H1-H3 dropped, owner decides whether to proceed.
+
+## Second download round (2026-10-25, after the owner said to download everything possible)
+
+Rule followed: public files only; no account created, no terms accepted, no paywall bypassed.
+
+**The ASI 2023-24 unit-level file is publicly downloadable.** The catalogue page for the round lists
+`ASI24m.TXT` (610.2 MB) among its related materials and serves it without a login (HTTP 200). The block-wise
+guidelines call the data "freely available for download". Saved **outside the OneDrive project folder** (a
+610 MB file would sync) at `C:/Users/vitta/greeneis-data/asi/ASI24m.TXT`, exactly 639,837,328 bytes,
+SHA-256 `3622322de1339f0b73b2bf17b1ca4d73f0b61f51bc417a7c47c252284acbd408`. It is gitignored by being outside
+the repository. **The portal's terms of use are still unread** (V-18); do not share the file or quote
+factory-level rows. Only aggregates should leave this machine until the terms are read.
+
+| Round | Public data file? | How to get the data |
+|---|---|---|
+| 2023-24 (catalog 256) | **yes**, `ASI24m.TXT` | downloaded |
+| 2022-23 (205), 2021-22 (188), 2020-21 (275) | no | free login on microdata.gov.in ("Get Microdata" says "user must be logged in"); account creation is the owner's |
+
+What the file holds (read and counted, `src/greeneis/study/asi.py`): 68,641 factories (57,274 open); 600,530
+Block H input-item rows. The three fixed fuel lines carry a quantity: electricity purchased (57,918 factories,
+all in kWh), coal (4,133, all in tonnes), gas (5,572, all in kg). The petrol/diesel/oil, other-fuel and
+own-generated-electricity lines carry **no quantity** in any row (0 of 47,621 / 7,701 / 5,330). Specific fuel
+products listed among a factory's ordinary input items are rare (diesel 50, furnace oil 77, LPG 142, pet coke
+71 rows). Reported rate always equals value divided by quantity (it is derived, not independent).
+
+**Documents** (in `data/reference/`, gitignored): `asi_docs/` holds the data structure, schedule, code list,
+concepts, instruction manual, NPCMS product classification and unit-level-data note for 2023-24, and the
+same layout documents for 2021-22. `papers/` holds the open-access papers below.
+
+| File | Bytes | SHA-256 (first 16) |
+|---|---|---|
+| papers/CEA_CO2_baseline_user_guide_v20.pdf | 1,171,206 | b881c258f58fd77c |
+| papers/CEEW_2018_informal_manufacturing_brief.pdf | 1,166,501 | a02cff5474b81d37 |
+| papers/CSTEP_2018_GHG_informal_sector.pdf | 1,246,175 | 03ee49af4507ba9f |
+| papers/GHGPI_2017_industry_subsector_estimates.pdf | 1,405,248 | 4a7b75db682500e4 |
+| papers/GHG_Protocol_quantitative_uncertainty.pdf | 163,501 | 1d644ddc95c00ef4 |
+| papers/NIST_IR_7850_2012.pdf | 1,560,347 | 844f80d8f227d670 |
+| papers/UTS_AI_assisted_emission_reporting_SMEs.pdf | 183,353 | cc0af7df9e606af3 |
+
+**Not obtainable (and not circumvented):** Halat et al. 2026 (publisher returns 403), the ADB 2024 report
+(403), Kuo et al. 2015 (503 at the time; retry later).
+
+**BEE archived reports via the Wayback Machine.** The archive's CDX index lists copies of 7 BEE sector
+energy-mapping reports (brick, chemical, forging, foundry, glass and refractory, paper, pharma; 2.4-6.7 MB each),
+the Akal Enterprises unit audit (Ludhiana forging), BJL Hand Tools, the Varanasi brick and Godavari
+refractory manuals, the Howrah galvanizing manual, a brick-sector blueprint and a Jorhat situation analysis.
+**None downloaded yet:** the archive's file endpoint answered "429 Too Many Requests" to every attempt (my
+index queries probably used the allowance); a slow retry with back-off (up to 3 minutes between tries, 30 s between files) was also refused for the first
+two files, so I stopped it rather than prolong the block. Retry from another network later, or open the
+copies by hand in a browser on web.archive.org. The Pali and Indore
+unit audits (Vijay Anand, Raj Kumar, Nanak Overseas and others) are **not in the index** under those names.

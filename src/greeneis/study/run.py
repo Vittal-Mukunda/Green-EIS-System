@@ -18,7 +18,7 @@ from pathlib import Path
 import numpy as np
 
 from ..trust import TrustConfig
-from . import analysis, cases, outcomes, proxies, synthetic
+from . import analysis, asi, cases, outcomes, proxies, synthetic
 
 SYNTHETIC_BANNER = (
     "SYNTHETIC DATA: generated to exercise the pipeline. The errors below come from the generator's "
@@ -45,6 +45,7 @@ def run_study(
     seed: int = 0,
     n_boot: int = 1000,
     cfg: TrustConfig | None = None,
+    data_log: dict | None = None,
 ) -> dict:
     cfg = cfg or TrustConfig()
     valid = cases.validate(frame)
@@ -59,6 +60,7 @@ def run_study(
         "reference_quantity": reference,
         "created_utc": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "rows_dropped": valid.dropped,
+        "data_log": data_log or {},
         "units": int(valid.cases["unit_id"].nunique()),
         "rows": int(len(valid.cases)),
         "clusters": int(valid.cases["cluster"].nunique()),
@@ -83,8 +85,12 @@ def main(argv: list[str] | None = None) -> None:
     ap = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    ap.add_argument("--source", choices=["synthetic", "csv"], default="synthetic")
-    ap.add_argument("--path", help="case-table CSV (with --source csv)")
+    ap.add_argument("--source", choices=["synthetic", "csv", "asi"], default="synthetic")
+    ap.add_argument("--path", help="case-table CSV (csv) or merged ASI file (asi)")
+    ap.add_argument("--max-employees", type=int, default=50, help="asi: largest factory kept")
+    ap.add_argument(
+        "--gas-item", choices=["lpg", "natural_gas"], default="lpg", help="asi: what 'gas' is"
+    )
     ap.add_argument("--units", type=int, default=600)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--boot", type=int, default=1000)
@@ -92,9 +98,20 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--out", default="outputs/study.json")
     args = ap.parse_args(argv)
 
+    data_log = None
     if args.source == "synthetic":
         frame = synthetic.generate(args.units, args.seed)
         reference = "invented (synthetic generator)"
+        source = "synthetic"
+    elif args.source == "asi":
+        if not args.path:
+            ap.error("--path is required with --source asi")
+        built = asi.build_cases(asi.read_blocks(args.path), args.max_employees, args.gas_item)
+        frame, data_log = built.cases, built.log
+        reference = "reported by the factory in the ASI return (purchase records), not metered"
+        source = (
+            f"ASI {built.log['round']}, gas as {args.gas_item}, up to {args.max_employees} persons"
+        )
     else:
         if not args.path:
             ap.error("--path is required with --source csv")
@@ -102,7 +119,8 @@ def main(argv: list[str] | None = None) -> None:
 
         frame = pd.read_csv(args.path)
         reference = args.reference
-    result = run_study(frame, args.source, reference, args.seed, args.boot)
+        source = "csv"
+    result = run_study(frame, source, reference, args.seed, args.boot, data_log=data_log)
     out = write(result, args.out)
     print(f"wrote {out}")
     if result["provenance"]["synthetic"]:

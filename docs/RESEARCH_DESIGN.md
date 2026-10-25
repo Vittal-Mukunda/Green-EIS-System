@@ -126,3 +126,14 @@ Process emissions, Scope 3, LCA, real-time sensors, certification, bill/invoice 
 - **2026-10-25, implementation notes that matter for interpretation.** Bootstrap clusters are state-year
   groups (prices are shared within them). With fewer than 10 clusters the analysis refuses to give a verdict.
   The nominal interval is read as a 90% interval for H2 (decision 4 in §9 is still open).
+- **2026-10-25, before the first run on real data (ASI 2023-24).** Written before any outcome was computed.
+  The ASI unit-level file was downloaded and described (counts only, no errors or hypothesis tests).
+  Decisions fixed for the case table (details in `src/greeneis/study/asi.py`): open factories only; at most
+  50 persons in total (placeholder from §9); sector = 2-digit NIC division of the return code; price group
+  and bootstrap cluster = state (the file holds one year); scale for the Default proxy = persons (not cost of
+  production, which contains the fuel bill being predicted); survey multiplier ignored; only the three fixed
+  lines with a quantity (electricity, coal, gas); "gas consumed" read as LPG. **The main run uses exactly
+  these.** Two sensitivity runs are declared now and no others: (1) gas as natural gas; (2) at most 100
+  persons. Whatever the runs show is reported, including failures. Known limits: the reference quantity is
+  reported, not metered; liquid fuels are not usable (the schedule gives no unit), so a factory has at most
+  three items and H4 and H5 cover only factories with electricity plus coal or gas.

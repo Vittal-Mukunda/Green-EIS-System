@@ -49,4 +49,5 @@ max-line-length = 110  # the formatter keeps code at 100; this only gives commen
 [tool.ruff.lint.per-file-ignores]
 "dashboard/components/*.py" = ["E501"]  # HTML templates
 "dashboard/*.py" = ["E501"]  # sentences of interface text
+"tests/test_study_asi.py" = ["E501"]  # fixed-width record literals
 "tests/test_ui_components.py" = ["E402"]  # dashboard/ goes on sys.path before the component imports

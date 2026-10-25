@@ -16,8 +16,8 @@ whenever something is assumed. Status: open / confirmed / dropped.
 | V-09 | Pali cluster manual "24 unit audits in annexure volumes I-VI" | Single search snippet; nothing on sameeeksha.org's listing matches it | open |
 | V-16 | Whether BEE audit "measured" values are metered or auditor estimates | Reports not read; index shows only headings | open |
 | V-17 | Terms of use of SAMEEKSHA documents | No terms, licence or reuse statement on the site | open |
-| V-18 | ASI unit-level data: fuel quantity per item in recent rounds; access terms | Catalog entries exist for 2011-12 to 2023-24 with data-structure and code-list documents; item-level quantity in recent rounds not yet read; portal rejects certificate from this machine; one library guide says free download (dated) | open |
-| V-19 | Item-code to fuel mapping for ASI | Needs the round's code list; "other fuels" and coal grade unmapped | open |
+| V-18 | ASI access terms of use (undertakings, publication limits, sharing) | The 2023-24 file is served publicly and the guidelines call the data freely available, but the portal's policy text is unread; earlier rounds need a free login. Do not share factory-level rows until read | open |
+| V-19 | Item-code to fuel mapping for ASI | Resolved for 2022-23: electricity 9990500 (kWh), coal 9990700 (tonne), gas 9990900 (kg); petrol/diesel/oil 9990600 and other fuel 9920400 have no unit and are unusable | confirmed |
 | V-20 | CEEW (2017) use of ASI unit-level data (Tier III) | Seen only in a search summary of a slide deck | open |
 | V-21 | Annexure Volumes I-VI of the Pali manual (24 audits) exist online | Referenced in the manual; location unknown | open |
 | V-10 | Pali DPR Table 1.1 units (electricity 51.3 "MWh/year" for a cluster whose single units use 100-300 MWh per month) | Looks like a unit or scale slip; not checked against the original table | open |
@@ -33,3 +33,11 @@ whenever something is assumed. Status: open / confirmed / dropped.
 | V-26 | Study proxies: spend / typical price and sector intensity x scale, leave-one-out with at least 4 other units; thin-lead threshold 10 pp; coverage band 80-95%; q90 factor 1.5 | Placeholders fixed in code before any real data; not tuned | open |
 | V-27 | Study profiles (bills_only, minimal, invoices_main, random_mix 0.4/0.4/0.2) are assumptions about record-keeping, not observations | State in the paper | open |
 | V-28 | Item-code mapping from the real data source (ASI or BEE) to library fuels | Not written; needs the source's code list (V-19) | open |
+| V-29 | ASI "Gas consumed" (kg) is LPG or natural gas | **Tested:** the sensitivity run with natural gas gave the same verdicts and near-identical numbers (H4 0.965 vs 0.964); main run reads it as LPG | confirmed (immaterial) |
+| V-30 | ASI 2022-23 gives quantity and value only for electricity, coal and gas; liquid fuels are lumped without a unit | Read in the schedule and data structure on 2026-10-25. Limits H4 and H5 to at most three items per factory; state in the paper | confirmed |
+| V-31 | ASI rate per unit and small-factory coverage | **Resolved on the real file:** the rate always equals value / quantity (derived, so price proxies are not independent of the factory's own entry); 24,107 / 978 / 1,579 small factories report electricity / coal / gas; 2,442 report two or more | confirmed |
+| V-32 | H5 on ASI rests on 67 factories in 16 clusters (98 in 17 in the 100-person run) | Needs two non-measured items; the margin CI nearly touches zero. Report as weak | open |
+| V-33 | H3 pooled correlation (-0.97) is largely structural (86,847 of 96,534 profile rows are single-item factories) | Exploratory two-or-more-item result is -0.79; label the first as headline only with the second | open |
+| V-34 | The placeholder ranges are miscalibrated per fuel (Default 90th percentile 599% vs 50%; coal and LPG Estimated about 60% vs 25%) | Result of the first real run; calibrate per fuel and validate on a held-out year (needs the owner's login) | open |
+| V-35 | One year only (2023-24); clusters are 36 states sharing one year of prices | Earlier rounds need the owner's free login | open |
+| V-36 | Wayback BEE reports: file endpoint rate-limited; Pali and Indore unit audits not in the index under their names | Retries refused (429) and stopped; retry later or from another network; see DATA_INVENTORY | open |
