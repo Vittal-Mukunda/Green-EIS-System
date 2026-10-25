@@ -1,0 +1,8 @@
+unit_id,item_id,quantity,value_inr,scale,sector,price_group,cluster,synthetic
+SYN-00000,coal,1657.1,14982.0,3.863,textiles,S3-Y1,S3-Y1,True
+SYN-00000,diesel,185.4,26290.0,3.863,textiles,S3-Y1,S3-Y1,True
+SYN-00000,grid_electricity,17021.2,93565.0,3.863,textiles,S3-Y1,S3-Y1,True
+SYN-00001,diesel,1325.7,130800.0,14.985,food,S5-Y2,S5-Y2,True
+SYN-00001,lpg,1022.1,83896.0,14.985,food,S5-Y2,S5-Y2,True
+SYN-00001,grid_electricity,39496.8,400701.0,14.985,food,S5-Y2,S5-Y2,True
+SYN-00002,grid_electricity,42749.8,349678.0,7.587,metals,S1-Y1,S1-Y1,True

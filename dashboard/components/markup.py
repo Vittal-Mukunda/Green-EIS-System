@@ -30,3 +30,9 @@ def attrs(**kw: object) -> str:
 def render(markup: str) -> None:
     """Put a component on the page."""
     st.html(markup)
+
+
+def section(title: str, note: str = "") -> None:
+    """A section heading with an optional note at the right."""
+    tail = f'<span class="eis-section-note">{esc(note)}</span>' if note else ""
+    render(f'<div class="eis-section"><h3>{esc(title)}</h3>{tail}</div>')

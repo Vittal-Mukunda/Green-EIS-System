@@ -1,0 +1,10 @@
+id,name,phase,ncv_tj_per_kt,ef_co2_kg_per_tj,ef_ch4_kg_per_tj,ef_n2o_kg_per_tj,density_kg_per_l,density_status,source,source_year,status,flags,note
+coal,"Coal (sub-bituminous, grade assumed)",solid,19.6,95810,10,1.5,,,"CSTEP 2018 (ref S1), Tables 2 and 4",2018,source_verified,coal_grade_assumed,"CSTEP applies this factor to all coal because the grade supplied to the sector is unknown."
+lignite,Lignite,solid,14.2,92600,1,1.5,,,"CSTEP 2018 (ref S1), Tables 2 and 4",2018,source_verified,,
+lpg,Liquefied petroleum gas (LPG),gas,47.3,63100,5,0.1,,,"CSTEP 2018 (ref S1), Tables 3 and 4",2018,source_verified,,"Mass units only; no verified density."
+naphtha,Naphtha,liquid,44.5,73300,3,0.6,,,"CSTEP 2018 (ref S1), Tables 3 and 4",2018,source_verified,,"Mass units only; no verified density."
+kerosene,Kerosene,liquid,43.8,71900,10,0.6,,,"CSTEP 2018 (ref S1), Tables 3 and 4",2018,source_verified,,"Mass units only; no verified density."
+diesel,Diesel oil (HSDO / LDO),liquid,43.3,74100,3,0.6,0.85,assumed,"CSTEP 2018 (ref S1), Tables 3 and 4",2018,source_verified,,"CSTEP lists HSDO and LDO with identical factors and one NCV (diesel oil, LDO/HDO). The density 0.85 kg/L is the reference document's worked-example assumption (ref section 7), not a sourced value (V-03)."
+furnace_oil,Furnace oil (FO),liquid,40.2,77400,3,0.6,,,"CSTEP 2018 (ref S1), Tables 3 and 4",2018,source_verified,,"Mass units only; no verified density."
+lshs,Low sulphur heavy stock (LSHS),liquid,40.1,73300,3,0.6,,,"CSTEP 2018 (ref S1), Tables 3 and 4",2018,source_verified,,"Mass units only; no verified density."
+natural_gas,Natural gas,gas,48.6,56100,1,0.6,,,"CSTEP 2018 (ref S1), Tables 3 and 4",2018,derived_reading,,"CSTEP prints the CO2 factor as 56.100; read here as 56,100 kg/TJ (V-02). NCV 48.6 TJ/kt is per mass; volumetric quantities (m3) are rejected until a volumetric NCV is sourced."

@@ -1,45 +1,53 @@
-"""Badges and position chips.
+"""Badges and status marks.
 
-A position is where a figure sits among the companies of its own sector that pass the data checks. It
-is not a rating. The six words below are the only ones the interface uses for a position, and each chip
-carries its word, so colour is never the only signal.
+A data-class badge tells a reader how well a number is known. Each badge carries its word and an icon, so
+colour is never the only signal. The classes are Measured, Estimated and Default; a Default is a generic
+value used because nothing better was available.
 """
 
 from __future__ import annotations
 
-from gauge.viewdata import BAND_FLAT, DATA_CHECK
-
 from .icons import STATUS_ICONS, icon
 from .markup import attrs, esc
 
-# band as stored by gauge.viewdata -> (label shown, css class)
-POSITIONS = {
-    "better third": ("Better third", "better"),
-    "middle third": ("Middle third", "middle"),
-    "weaker third": ("Weaker third", "weaker"),
-    BAND_FLAT: ("No clear difference", "flat"),
-    DATA_CHECK: ("Data check", "check"),
-    "n/a": ("Too few to place", "na"),
+# data class -> (label, tone, icon, tooltip)
+DATA_CLASSES = {
+    "measured": (
+        "Measured",
+        "ok",
+        "verified",
+        "Directly metered, billed or weighed for the period (an electricity bill, a fuel invoice).",
+    ),
+    "estimated": (
+        "Estimated",
+        "info",
+        "calculate",
+        "Derived from a proxy: running hours times rated load, spend divided by a typical price, a stock difference.",
+    ),
+    "default": (
+        "Default",
+        "warn",
+        "help",
+        "A generic or sector-average value used because no data were available.",
+    ),
 }
-POSITION_HELP = {
-    "better": "Among the better third of its sector sample on this metric (a position, not a rating).",
-    "middle": "In the middle third of its sector sample on this metric.",
-    "weaker": "Among the weaker third of its sector sample on this metric (a position, not a rating).",
-    "flat": "The sector's values are within 1% of their median, so a rank would carry little meaning.",
-    "check": "The figure fails a data-quality check, so it is shown but not ranked. It is not a finding that the company misreported.",
-    "na": "Fewer than three companies in the sector pass the checks, too few to place anyone.",
+
+BANDS = {
+    "high": ("High trust", "ok"),
+    "medium": ("Medium trust", "info"),
+    "low": ("Low trust", "warn"),
+    "not available": ("Not available", ""),
 }
 
 
-def position_label(band: str) -> str:
-    return POSITIONS.get(band, (band.capitalize(), "na"))[0]
+def data_class_badge(data_class: str) -> str:
+    label, tone, glyph, tip = DATA_CLASSES.get(data_class, (data_class.capitalize(), "", "", ""))
+    return badge(label, tone, glyph, tip)
 
 
-def position_chip(band: str, detail: str = "") -> str:
-    """A chip such as 'Better third  2 of 5'."""
-    label, css = POSITIONS.get(band, (band.capitalize(), "na"))
-    extra = f' <span class="eis-muted">{esc(detail)}</span>' if detail else ""
-    return f'<span class="eis-pos {css}"{attrs(data_tip=POSITION_HELP.get(css))}>{esc(label)}{extra}</span>'
+def trust_band_badge(band: str) -> str:
+    label, tone = BANDS.get(band, (band.capitalize(), ""))
+    return badge(label, tone)
 
 
 def badge(text: str, tone: str = "", glyph: str = "", tip: str = "") -> str:

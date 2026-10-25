@@ -1,263 +1,181 @@
-"""The interface components: what they say, what they escape, and the rules the redesign must keep.
+"""The interface components: what they say, what they escape, and the rules the design must keep.
 
-The components are plain functions that return HTML, so they are tested without a browser; the pages
-that use them are covered by the AppTest suites (test_pages.py, test_dashboard.py, test_eis_views.py).
+The components are plain functions that return HTML, so they are tested without a browser; the pages that
+use them are covered by test_ui_pages.py.
 """
 
 from __future__ import annotations
 
+import pathlib
 import re
 import sys
 
-import pandas as pd
 import pytest
 
-sys.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parents[1] / "dashboard"))
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "dashboard"))
 
+import vocab  # noqa: E402
 from components import app_shell  # noqa: E402
 from components.alerts import callout_html  # noqa: E402
-from components.comparison_table import (  # noqa: E402
-    Cell,
-    MatrixColumn,
-    MatrixGroup,
-    MatrixRow,
-    position_cell_html,
-    scorecard_html,
-)
-from components.data_quality_table import (  # noqa: E402
-    exceptions_html,
-    movements_html,
-    register_table_html,
-)
+from components.data_table import Column, Html, table_html  # noqa: E402
 from components.empty_state import empty_state_html  # noqa: E402
-from components.evidence_card import (  # noqa: E402
-    Check,
-    Evidence,
-    check_groups_html,
-    evidence_card_html,
+from components.format import (  # noqa: E402
+    fmt_figure,
+    fmt_inr,
+    fmt_number,
+    fmt_pct,
+    fmt_t,
+    fmt_value,
 )
 from components.icons import PAGE_ICONS  # noqa: E402
-from components.markup import esc  # noqa: E402
+from components.kpi_card import stat_strip_html  # noqa: E402
+from components.markup import attrs, esc  # noqa: E402
 from components.page_header import GROUPS, breadcrumb_html, group_of  # noqa: E402
-from components.people import People  # noqa: E402
-from components.provenance import Step, chain_html, formula_words  # noqa: E402
-from components.sidebar import nav_css  # noqa: E402
-from components.status_badge import POSITIONS, badge, position_chip  # noqa: E402
-from components.topbar import fmt_date, search_targets  # noqa: E402
-
-from gauge import vocab  # noqa: E402
-
-POSITION_WORDS = {
-    "Better third",
-    "Middle third",
-    "Weaker third",
-    "No clear difference",
-    "Data check",
-    "Too few to place",
-}
-
-
-def _visible(html: str) -> str:
-    """The text a person reads: tags and tooltip attributes removed."""
-    return re.sub(r"<[^>]+>", " ", html)
-
-
-# ---- positions are words, never ratings ---------------------------------------------------------
-def test_a_position_uses_only_the_six_agreed_words():
-    assert {label for label, _ in POSITIONS.values()} == POSITION_WORDS
-
-
-@pytest.mark.parametrize("band", list(POSITIONS))
-def test_every_position_chip_and_cell_carries_its_word_so_colour_is_never_the_only_signal(band):
-    label = POSITIONS[band][0]
-    assert label in position_chip(band)
-    assert label in position_cell_html(Cell("12.3", band, "2 of 5"))
-
-
-def test_a_data_check_is_never_given_a_rank():
-    cell = _visible(position_cell_html(Cell("103.5", "data check", "")))
-    chip = _visible(position_chip("data check"))
-    assert "Data check" in cell and " of " not in cell
-    assert "rank" not in chip.lower() and "#1" not in chip
-
-
-def test_the_interface_never_calls_a_position_a_rating_or_a_score():
-    html = "".join(position_chip(b) for b in POSITIONS) + "".join(
-        position_cell_html(Cell("1", b, "1 of 5")) for b in POSITIONS
-    )
-    for forbidden in ("rating", "ESG score", "good company", "bad company"):
-        assert forbidden.lower() not in _visible(html).lower()
-
-
-def test_a_missing_figure_says_so_instead_of_leaving_a_blank():
-    assert "not loaded" in position_cell_html(Cell(empty=True))
+from components.sidebar import nav_css, unit_block_html  # noqa: E402
+from components.status_badge import (  # noqa: E402
+    DATA_CLASSES,
+    badge,
+    data_class_badge,
+    trust_band_badge,
+)
+from components.topbar import search_targets, status_html  # noqa: E402
 
 
 # ---- escaping -----------------------------------------------------------------------------------
-def test_text_from_the_data_is_escaped_wherever_it_is_drawn():
-    nasty = "<script>alert(1)</script> & Co"
+def test_text_is_escaped_everywhere_it_can_come_from_a_person():
+    nasty = '<script>alert("x")</script>'
     assert "<script>" not in esc(nasty)
-    row = MatrixRow(nasty, nasty, [Cell("1", "better third", "1 of 5", nasty)])
-    html = scorecard_html([MatrixGroup(nasty, [row])], [MatrixColumn(nasty, nasty, nasty)])
-    assert "<script>" not in html and "&amp; Co" in html
     assert "<script>" not in callout_html("info", nasty, nasty)
+    assert "<script>" not in badge(nasty, tip=nasty)
     assert "<script>" not in empty_state_html(nasty, nasty)
-    assert "<script>" not in badge(nasty, "warn", tip=nasty)
-    assert "<script>" not in evidence_card_html(nasty, [Evidence("ok", nasty, esc(nasty))], nasty)
-    assert "<script>" not in check_groups_html([(nasty, [Check("pass", nasty, nasty, nasty)])])
-    assert "<script>" not in chain_html([Step("insights", nasty, nasty, nasty, esc(nasty))])
+    assert "<script>" not in stat_strip_html([(nasty, nasty, nasty)])
+    assert "<script>" not in table_html([Column(nasty)], [[nasty]])
+    assert "<script>" not in unit_block_html({"name": nasty, "period": nasty, "activities": 1})
+    assert "<script>" not in status_html(nasty)
 
 
-# ---- exception lists ----------------------------------------------------------------------------
-def test_an_exception_is_a_figure_to_check_and_not_a_verdict_on_the_company():
-    html = exceptions_html(
-        [
-            {
-                "code": "CEM-03",
-                "fy": "FY2025-26",
-                "who": "J.K. Cement Limited",
-                "what": "Waste recovery rate",
-                "value": "103.5",
-                "unit": "%",
-                "why": "Waste recovered exceeds waste generated.",
-            }
-        ]
+def test_attrs_skips_empty_values():
+    assert attrs(cls="a", title="") == ' class="a"'
+    assert attrs(data_tip="x") == ' data-tip="x"'
+
+
+# ---- numbers ------------------------------------------------------------------------------------
+@pytest.mark.parametrize(
+    ("value", "text"),
+    [
+        (1234.5, "1,234"),
+        (123.4, "123"),
+        (12.34, "12.3"),
+        (1.234, "1.23"),
+        (0.1234, "0.123"),
+        (0.000123, "0.00012"),
+    ],
+)
+def test_numbers_are_readable_and_never_scientific(value, text):
+    # 1234.5 rounds half to even under the f-string, so allow either neighbour
+    got = fmt_number(value)
+    assert got == text or got == "1,235"
+    assert "e" not in got
+
+
+def test_unit_and_percentage_formatting():
+    assert fmt_figure(103.456, "%") == "103.5" and fmt_value(103.456, "%") == "103.5 %"
+    assert fmt_value(float("nan"), "tCO2e") == "not available"
+    assert fmt_t(38.966190955) == "38.97" and fmt_t(1204.51) == "1,204.51" and fmt_t(None) == "n/a"
+    assert fmt_pct(0.4853323) == "48.5%" and fmt_pct(None) == "n/a"
+    assert fmt_inr(4758.99) == "4,759" and fmt_inr(None) == "n/a"
+
+
+# ---- data classes and badges --------------------------------------------------------------------
+def test_each_data_class_has_a_word_an_icon_and_an_explanation():
+    assert set(DATA_CLASSES) == {"measured", "estimated", "default"}
+    for cls in DATA_CLASSES:
+        html = data_class_badge(cls)
+        label, _tone, glyph, tip = DATA_CLASSES[cls]
+        assert label in html and glyph in html and 'data-tip="' in html and tip[:20] in html
+
+
+def test_trust_bands_are_worded_not_only_coloured():
+    for band, word in (("high", "High trust"), ("medium", "Medium trust"), ("low", "Low trust")):
+        assert word in trust_band_badge(band)
+    assert "Not available" in trust_band_badge("not available")
+
+
+# ---- tables -------------------------------------------------------------------------------------
+def test_table_aligns_numbers_marks_the_first_column_and_shows_missing_as_na():
+    html = table_html(
+        [Column("Activity"), Column("tCO2e", numeric=True, note="per period"), Column("Cost")],
+        [["Coal", "18.91", None], ["Diesel", "5.47", Html("<b>ok</b>")]],
     )
-    assert "Data check" in html and "103.5" in html and "FY2025-26" in html
-    for forbidden in ("misreport", "fraud", "violat", "breach"):
-        assert forbidden not in html.lower()
+    assert html.count("<tr>") == 3  # header + two rows
+    assert 'class="firstcol num"' not in html and 'class="firstcol"' in html
+    assert 'class="num"' in html and "per period" in html
+    assert 'class="eis-na">n/a' in html and "<b>ok</b>" in html
+    assert "<b>Coal</b>" in html
 
 
-def test_movement_bars_saturate_so_one_outlier_does_not_flatten_the_rest():
-    big = {
-        "who": "A",
-        "what": "m",
-        "change": 3635.0,
-        "movement": "better",
-        "prev": "1",
-        "now": "2",
-        "unit": "%",
-    }
-    small = {**big, "who": "B", "change": 10.0}
-    html = movements_html([big, small])
-    widths = [float(w) for w in re.findall(r"width:([0-9.]+)%", html)]
-    assert widths == [50.0, 5.0]  # the outlier fills its half, a 10% move is a tenth of a half
-    assert "+3635.0%" in html  # the label stays exact
+def test_table_refuses_rows_of_the_wrong_length():
+    with pytest.raises(ValueError):
+        table_html([Column("A"), Column("B")], [["only one"]])
 
 
-def test_the_register_row_shows_status_reviewer_and_date_or_says_none():
-    row = {
-        "code": "CEM-03",
-        "sector": "Cement",
-        "fy": "FY2025-26",
-        "metric": "Waste recovery rate",
-        "reported": "103.5 %",
-        "rule": "recovered_le_generated",
-        "severity": "error",
-        "issue": "waste recovered exceeds waste generated",
-        "status": "Needs verification",
-        "tone": "warn",
-        "reviewer": None,
-        "verified_on": None,
-    }
-    html = register_table_html(pd.DataFrame([row]), lambda code: "J.K. Cement Limited")
-    assert "103.5 %" in html and "Needs verification" in html
-    assert "not yet reviewed" in html and "J.K. Cement Limited" in html
-    done = {
-        **row,
-        "status": "Reviewed: matches filing",
-        "tone": "ok",
-        "reviewer": "Dana",
-        "verified_on": "2026-10-04",
-    }
-    html = register_table_html(pd.DataFrame([done]), lambda code: code)
-    assert "Dana" in html and "2026-10-04" in html and "not yet reviewed" not in html
+def test_stat_strip_sets_its_column_count():
+    html = stat_strip_html([("a", "1", "x"), ("b", "2", "y"), ("c", "3", "z")])
+    assert "--n:3" in html and html.count("eis-kpi-value") == 3
 
 
 # ---- shell, navigation --------------------------------------------------------------------------
-def test_every_page_has_an_icon_and_a_group():
-    for page in vocab.DASHBOARD_VIEWS:
+def test_every_page_has_an_icon_a_group_and_a_note():
+    for page in vocab.PAGES:
         assert page in PAGE_ICONS, page
-        assert group_of(page) != "Green EIS", page
+        assert group_of(page) != "GreenEIS", page
+        assert page in vocab.PAGE_NOTES, page
+    assert set(PAGE_ICONS) == set(vocab.PAGES)
 
 
 def test_the_sidebar_groups_follow_the_display_order():
-    order = [p for pages in list(GROUPS.values())[:4] for p in pages]
-    assert order == list(vocab.EIS_VIEWS)
+    assert [p for pages in GROUPS.values() for p in pages] == list(vocab.PAGES)
 
 
 def test_navigation_css_puts_a_heading_above_the_first_page_of_each_group_only():
-    css = nav_css(list(vocab.DASHBOARD_VIEWS))
-    for heading in ("Overview", "Analysis", "Assurance", "Reference", "Model evaluation"):
+    css = nav_css(list(vocab.PAGES))
+    for heading in GROUPS:
         assert css.count(f'content:"{heading}"') == 1
-    assert 'nth-child(1) [data-testid="stRadioOption"]::before{content:"home"}' in css
-    subset = nav_css(["Home", "Sources and filings"])
-    assert 'content:"Overview"' in subset and 'content:"Assurance"' in subset
-    assert 'content:"Analysis"' not in subset
+    assert 'nth-child(1) [data-testid="stRadioOption"]::before{content:"edit_note"}' in css
+    subset = nav_css(["Summary", "About"])
+    assert 'content:"Unit"' in subset and 'content:"Reference"' in subset
+    assert 'content:"Study"' not in subset
 
 
 def test_the_breadcrumb_names_the_group_and_the_page():
-    html = breadcrumb_html("Data quality register")
-    assert "Green EIS" in html and "Assurance" in html and "Data quality register" in html
+    html = breadcrumb_html("Hotspots")
+    assert "GreenEIS" in html and "Unit" in html and "Hotspots" in html
     assert 'aria-label="Breadcrumb"' in html
 
 
-def test_search_offers_pages_sectors_and_companies_and_follows_the_names_switch():
-    directory = pd.DataFrame(
-        [
-            {
-                "code": "CEM-01",
-                "name": "UltraTech Cement Limited",
-                "symbol": "ULTRACEMCO",
-                "sector": "Cement",
-            },
-            {
-                "code": "ITS-01",
-                "name": "Infosys Limited",
-                "symbol": "INFY",
-                "sector": "IT Services",
-            },
-        ]
-    )
-    pages = ["Home", "Sectors", "Companies"]
-    real = search_targets(pages, People(directory, True), ["Cement", "IT Services"])
-    assert real["Page · Sectors"] == ("page", "Sectors")
-    assert real["Sector · Cement"] == ("sector", "Cement")
-    assert real["Company · UltraTech Cement Limited · Cement"] == ("company", "CEM-01")
-    masked = search_targets(pages, People(directory, False), ["Cement"])
-    assert "Company · CEM-01 · Cement" in masked and not any("UltraTech" in k for k in masked)
-    assert not any(
-        k.startswith("Company") for k in search_targets(["Home"], People(directory, True), [])
-    )
+def test_search_only_offers_pages():
+    targets = search_targets(["Summary", "About"])
+    assert targets == {"Page · Summary": "Summary", "Page · About": "About"}
 
 
-@pytest.mark.parametrize(
-    ("iso", "text"),
-    [("2026-10-02", "2 Oct 2026"), ("2026-01-15", "15 Jan 2026"), (None, "date not recorded")],
-)
-def test_dates_are_written_for_people(iso, text):
-    assert fmt_date(iso) == text
-
-
-# ---- provenance ---------------------------------------------------------------------------------
-def test_the_formula_shown_is_the_configured_one_with_labels():
-    labels = {
-        "water_consumption": "Water consumption",
-        "revenue_from_operations": "Revenue from operations",
-    }
-    assert formula_words("water_consumption / revenue_from_operations", labels) == (
-        "Water consumption / Revenue from operations"
-    )
-
-
-def test_the_chain_draws_each_step_in_order():
-    steps = [
-        Step("insights", "KPI", "8.42", "x"),
-        Step("fingerprint", "SHA-256 fingerprint", "", "", "abcd"),
-    ]
-    html = chain_html(steps)
+def test_slug_is_a_stable_address():
     assert (
-        html.index("KPI") < html.index("SHA-256 fingerprint") and html.count("eis-step-body") == 2
+        vocab.slug("What-if") == "what-if"
+        and vocab.slug("Factors and method") == "factors-and-method"
+    )
+    assert len({vocab.slug(p) for p in vocab.PAGES}) == len(vocab.PAGES)
+
+
+def test_the_unit_block_says_when_it_is_the_example():
+    assert "Illustrative example" in unit_block_html(
+        {"name": "X", "period": "p", "activities": 4, "is_example": True}
+    )
+    assert "Current unit" in unit_block_html({"name": "X", "period": "p", "activities": 4})
+
+
+def test_the_status_dot_can_warn():
+    assert "eis-dot warn" in status_html("example", "warn") and "eis-dot warn" not in status_html(
+        "ok"
     )
 
 
@@ -288,8 +206,6 @@ def test_every_stylesheet_uses_tokens_rather_than_hard_coded_brand_colours():
 
 
 def test_the_interface_uses_no_emoji():
-    import pathlib
-
     emoji = re.compile("[\U0001f300-\U0001faff☀-➿]")
     root = pathlib.Path(__file__).resolve().parents[1] / "dashboard"
     for path in [
@@ -298,6 +214,18 @@ def test_the_interface_uses_no_emoji():
         *(root / "styles").glob("*.css"),
     ]:
         offending = emoji.findall(path.read_text(encoding="utf-8"))
-        # the check marks used in the plain-text STATUS_TEXT of the data tables are typographic, not emoji
-        offending = [c for c in offending if c not in "✔✖ℹ▲"]
         assert not offending, (path.name, offending)
+
+
+def test_pages_do_not_write_css_or_html_structure_themselves():
+    """Pages call components. Raw markup belongs in dashboard/components/."""
+    root = pathlib.Path(__file__).resolve().parents[1] / "dashboard"
+    for path in [
+        root / "pages_unit.py",
+        root / "pages_study.py",
+        root / "pages_reference.py",
+        root / "app.py",
+    ]:
+        text = path.read_text(encoding="utf-8")
+        assert "<style" not in text and "unsafe_allow_html" not in text, path.name
+        assert not re.search(r"""['"]<(div|span|table|h[1-6])\b""", text), path.name

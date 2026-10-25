@@ -9,23 +9,14 @@ from .markup import esc
 
 # page -> icon, used by the sidebar and the home page
 PAGE_ICONS = {
-    "Home": "home",
-    "Sectors": "stacks",
-    "KPI scorecard": "grid_view",
-    "Companies": "apartment",
-    "Compare companies": "compare_arrows",
-    "Query and chart": "query_stats",
-    "Compliance check": "fact_check",
-    "Data quality register": "rule",
-    "Sources and filings": "folder_open",
-    "Data verification": "verified",
-    "Metrics guide": "functions",
+    "Data entry": "edit_note",
+    "Summary": "dashboard",
+    "Hotspots": "whatshot",
+    "What-if": "tune",
+    "Report": "description",
+    "Study results": "science",
+    "Factors and method": "functions",
     "About": "info",
-    "Model reliability scorecard": "monitoring",
-    "C1 vs C2": "difference",
-    "Disagreement queue": "forum",
-    "Annotation": "edit_note",
-    "Audit trail": "history",
 }
 
 # status -> icon (always shown with a word)

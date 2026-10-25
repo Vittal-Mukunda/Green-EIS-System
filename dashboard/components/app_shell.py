@@ -3,11 +3,11 @@ whichever page is selected."""
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from pathlib import Path
 
 import streamlit as st
 
-from .people import People
 from .sidebar import nav_css, render_sidebar
 from .topbar import render_topbar
 
@@ -26,9 +26,15 @@ def inject_styles(pages: list[str]) -> None:
     st.html(f"<style>\n{_stylesheet()}\n{nav_css(pages)}\n</style>")
 
 
-def render_shell(pages: list[str], directory, pilot: dict, status: dict, notice: str | None):
-    """Draw the chrome and return (selected page, show real company names, People)."""
-    page, real_names = render_sidebar(pages, pilot, notice)
-    people = People(directory, real_names)
-    render_topbar(pages, people, people.sectors(), status)
-    return page, real_names, people
+def render_shell(
+    pages: list[str],
+    unit: dict,
+    status_text: str,
+    status_tone: str = "",
+    notice: str | None = None,
+    extra: Callable[[], None] | None = None,
+) -> str:
+    """Draw the chrome and return the selected page."""
+    page = render_sidebar(pages, unit, notice, extra)
+    render_topbar(pages, status_text, status_tone)
+    return page

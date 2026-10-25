@@ -3,47 +3,37 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llm-gauge"
+name = "greeneis"
 version = "0.1.0"
-description = "Green EIS: measurement-system analysis of multi-LLM interpretation of Indian BRSR sustainability evidence"
+description = "GreenEIS: emissions, data-trust scoring, hotspots and what-if analysis for small Indian manufacturing units"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "sqlalchemy>=2.0",
-    "pydantic>=2.5",
-    "pyyaml>=6.0",
-    "python-dotenv>=1.0",
+    "streamlit>=1.50",
+    "plotly>=5.18",
     "pandas>=2.1",
     "numpy>=1.26",
     "scipy>=1.11",
     "statsmodels>=0.14",
-    "krippendorff>=0.6",
-    "streamlit>=1.50",
-    "plotly>=5.18",
-    "typer>=0.12",
-    "httpx>=0.27",
-    "tenacity>=8.2",
-    "defusedxml>=0.7",
+    "pyyaml>=6.0",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0",
     "ruff>=0.5",
-    "nbformat>=5.9",
-    "pypdf>=4.0",
 ]
-
-[project.scripts]
-gauge = "gauge.cli:app"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+greeneis = ["data/*.csv"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["src"]
 addopts = "-q"
-filterwarnings = ["error::sqlalchemy.exc.SAWarning"]
 
 [tool.ruff]
 line-length = 100
@@ -57,13 +47,6 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 max-line-length = 110  # the formatter keeps code at 100; this only gives comments and docstrings slack
 
 [tool.ruff.lint.per-file-ignores]
-"tests/test_xbrl.py" = ["E501"]  # XML literal
-"tests/xbrl_fixture.py" = ["E501"]  # XML builder
-"tests/test_amfi.py" = ["E501"]  # lines copied from the real PDF layout
-"scripts/build_candidate_pool.py" = ["E501"]  # data table
-"dashboard/app.py" = ["E402"]  # src/ goes on sys.path before the gauge imports
-"dashboard/eis_*.py" = ["E501"]  # sentences of interface text
 "dashboard/components/*.py" = ["E501"]  # HTML templates
-
-[tool.ruff.lint.flake8-bugbear]
-extend-immutable-calls = ["typer.Option", "typer.Argument"]
+"dashboard/*.py" = ["E501"]  # sentences of interface text
+"tests/test_ui_components.py" = ["E402"]  # dashboard/ goes on sys.path before the component imports

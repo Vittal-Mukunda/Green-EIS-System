@@ -269,6 +269,12 @@
 }
 .st-key-eis-help button {
   width: auto;
+  white-space: nowrap;
+}
+/* the Help column keeps its width (it used to wrap into a vertical stack at about 800 px) */
+.st-key-eis-topbar [data-testid="stColumn"]:last-child {
+  min-width: 5.75rem;
+  flex: 0 0 auto;
 }
 /* when the sidebar is collapsed Streamlit's expand button sits over the left edge */
 [data-testid="stApp"]:has([data-testid="stSidebar"][aria-expanded="false"]) .eis-topbar-brand {
@@ -377,6 +383,9 @@
   :root { --gutter: 1.5rem; }
   .eis-grid.cols-5 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .eis-grid.cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 1100px) {
+  .eis-topbar-sub { display: none; }
 }
 @media (max-width: 1000px) {
   :root { --gutter: 1rem; }

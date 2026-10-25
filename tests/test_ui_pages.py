@@ -1,307 +1,256 @@
-"""The redesigned pages under AppTest: the principles the interface must keep (positions are words,
-a data check is never a rank, units and sources stay visible, benchmarks are the study sample) and
-the navigation between pages. Hand-made data: tests/fixture_alpha.py."""
+"""The pages, run through Streamlit's AppTest. The example factory's numbers are the hand-worked ones
+(see test_analysis_modules.py): 38.97 tCO2e, trust index 0.72, plus or minus 12.9%."""
 
 from __future__ import annotations
 
-import re
+import pathlib
 import sys
+from decimal import Decimal as D
 
+import pandas as pd
+import pytest
 from streamlit.testing.v1 import AppTest
 
-from fixture_alpha import FY, PRIOR
+DASHBOARD = pathlib.Path(__file__).resolve().parents[1] / "dashboard"
+sys.path.insert(0, str(DASHBOARD))
+
+import pages_study  # noqa: E402
+import state  # noqa: E402
+import vocab  # noqa: E402
+
+from greeneis import whatif  # noqa: E402
+from greeneis.engine import Activity  # noqa: E402
+from greeneis.study import synthetic  # noqa: E402
+from greeneis.study.run import run_study, write  # noqa: E402
 
 
-def _run(monkeypatch, repo_root, config="config/study_dry.yaml") -> AppTest:
-    monkeypatch.setattr(sys, "argv", ["app.py", "--config", config])
-    return AppTest.from_file(str(repo_root / "dashboard" / "app.py"), default_timeout=120).run()
+@pytest.fixture(autouse=True)
+def no_outputs(tmp_path, monkeypatch):
+    """Pages read study results from OUTPUTS; point it at an empty folder unless a test fills it."""
+    monkeypatch.setattr(pages_study, "OUTPUTS", tmp_path / "outputs")
 
 
-def go(at: AppTest, page: str) -> AppTest:
-    at.sidebar.radio[0].set_value(page).run()
-    assert not at.exception, [e.value for e in at.exception]
+def run(page, before=None) -> AppTest:
+    at = AppTest.from_file(str(DASHBOARD / "app.py"), default_timeout=90)
+    at.session_state["view"] = page
+    if before:
+        before(at)
+    at.run()
     return at
 
 
-def html_of(at: AppTest) -> str:
-    """Every st.html block on the page, as written."""
-    return "\n".join(e.proto.body for e in at.get("html"))
+def html(at: AppTest) -> str:
+    return " ".join(h.proto.body for h in at.get("html"))
 
 
-def visible(at: AppTest) -> str:
-    """The text of those blocks with tags removed."""
-    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", html_of(at)))
-
-
-# ---- shell --------------------------------------------------------------------------------------
-def test_the_shell_has_the_brand_the_pilot_block_and_grouped_navigation(
-    fixture_world, repo_root, monkeypatch
-):
-    at = _run(monkeypatch, repo_root)
-    text = visible(at)
-    assert "Green Executive Information System" in text
-    assert "Pilot dataset" in text and "Latest year loaded" in text
-    css = html_of(at)
-    for group in ("Overview", "Analysis", "Assurance", "Reference"):
-        assert f'content:"{group}"' in css
-    assert "<style>" in css and "--accent" in css  # the design system was injected
-
-
-def test_the_top_bar_search_opens_a_page_a_sector_or_a_company(
-    fixture_world, repo_root, monkeypatch
-):
-    at = _run(monkeypatch, repo_root)
-    search = at.selectbox(key="eis_search")
-    assert "Page · Sectors" in search.options and "Sector · Test Alpha" in search.options
-    assert "Company · XAA-01 Ltd · Test Alpha" in search.options
-    at.selectbox(key="eis_search").set_value("Page · Compare companies").run()
-    assert at.sidebar.radio[0].value == "Compare companies" and not at.exception
-    at.selectbox(key="eis_search").set_value("Sector · Test Beta").run()
-    assert (
-        at.sidebar.radio[0].value == "Sectors" and at.radio(key="sector_pick").value == "Test Beta"
-    )
-    at.selectbox(key="eis_search").set_value("Company · XAA-03 Ltd · Test Alpha").run()
-    assert at.sidebar.radio[0].value == "Companies"
-    assert at.selectbox(key="company_pick").value == "XAA-03"
-    assert at.selectbox(key="eis_search").value is None  # reset, ready for the next search
-
-
-def test_the_search_follows_the_names_switch(fixture_world, repo_root, monkeypatch):
-    at = _run(monkeypatch, repo_root)
-    at.sidebar.toggle[0].set_value(False).run()
-    options = at.selectbox(key="eis_search").options
-    assert "Company · XAA-01 · Test Alpha" in options
-    assert not any("XAA-01 Ltd" in o for o in options)
-
-
-# ---- the home page: needs attention is about figures, not about companies -----------------------
-def test_home_lists_the_figure_that_fails_a_check_without_ranking_or_blaming(
-    fixture_world, repo_root, monkeypatch
-):
-    at = _run(monkeypatch, repo_root)
-    text = visible(at)
-    assert "1 figure require review" in text
-    assert "XAA-05 Ltd" in text and "Waste recovery rate" in text and "103.0" in text
-    assert "Data check" in text
-    assert "not a finding that a company misreported" in text
-    assert "Waste recovered exceeds waste generated." in text
-    exceptions = next(e.proto.body for e in at.get("html") if "eis-exceptions" in e.proto.body)
-    assert "#1" not in exceptions and "rank" not in re.sub(r"<[^>]+>", " ", exceptions).lower()
-
-
-def test_home_shows_the_chain_of_assurance_with_real_counts(fixture_world, repo_root, monkeypatch):
-    text = visible(_run(monkeypatch, repo_root))
-    for step in ("Filings", "Standardised", "Validated", "Computed", "Verified by a person"):
-        assert step in text
-    assert "1 of 2" in text  # one of the two stored values has been checked by a person
-
-
-# ---- the scorecard: colours are positions, a data check is not placed ---------------------------
-def test_the_scorecard_cells_say_where_a_figure_sits_and_never_rank_a_data_check(
-    fixture_world, repo_root, monkeypatch
-):
-    at = go(_run(monkeypatch, repo_root), "KPI scorecard")
-    html = html_of(at)
-    cells = re.findall(r'<div class="eis-cell ([a-z]+)"[^>]*>(.*?)</div>', html, re.S)
-    by_class = {}
-    for css, body in cells:
-        by_class.setdefault(css, []).append(re.sub(r"<[^>]+>", " ", body))
-    assert any("Data check" in b and " of " not in b for b in by_class["check"])  # XAA-05's 103%
-    assert any(
-        "No clear difference" in b for b in by_class["flat"]
-    )  # renewable share, all within 1%
-    assert any("Better third · 1 of 4" in b for b in by_class["better"])
-    text = visible(at)
-    assert "not environmental ratings" in text and "ESG scores" in text
-    assert "tCO2e per ₹ crore" in text  # units are in the column headers
-    assert "lower is better" in text and "higher is better" in text
-
-
-def test_the_scorecard_sector_filter_keeps_sectors_apart(fixture_world, repo_root, monkeypatch):
-    at = go(_run(monkeypatch, repo_root), "KPI scorecard")
-    at.selectbox(key="scorecard_sector").set_value("Test Beta").run()
-    assert not at.exception
-    text = visible(at)
-    assert "XBB-01 Ltd" in text and "XAA-01 Ltd" not in text
-
-
-# ---- sectors: the benchmark is the study sample -------------------------------------------------
-def test_the_sector_page_calls_the_benchmark_the_study_sample_and_not_the_industry(
-    fixture_world, repo_root, monkeypatch
-):
-    at = go(_run(monkeypatch, repo_root), "Sectors")
-    text = visible(at)
-    assert "Study-sample median" in text and "P25 to P75" in text
-    assert "Not an external industry benchmark" in text
-    assert re.search(r"industry benchmark", text, re.I) and "Industry median" not in text
-    emissions = re.search(r"Emissions intensity.*?(\d[\d,.]*)</b>", html_of(at), re.S)
-    assert emissions  # a median is drawn for the sample
-
-
-# ---- the register -------------------------------------------------------------------------------
-def test_the_register_has_status_actions_and_never_says_a_company_misreported(
-    fixture_world, repo_root, monkeypatch
-):
-    at = go(_run(monkeypatch, repo_root), "Data quality register")
-    text = visible(at)
-    assert "Needs verification" in text and "not yet reviewed" in text
-    assert "103.0 %" in text and "waste recovered exceeds waste generated" in text
-    for forbidden in ("misreported by", "fraud", "violated", "breached"):
-        assert forbidden not in text.lower()
-    assert at.button(key="register_source")
-    at.button(key="register_source").click().run()
-    assert at.sidebar.radio[0].value == "Sources and filings" and not at.exception
-
-
-# ---- the company page: evidence, then the trace to the filing -----------------------------------
-def test_the_company_page_makes_the_evidence_visible(fixture_world, repo_root, monkeypatch):
-    at = go(_run(monkeypatch, repo_root), "Companies")
-    at.selectbox(key="company_pick").set_value("XAA-01").run()
-    text = visible(at)
-    assert "Can these numbers be checked?" in text
-    assert "Source identified" in text and "data/raw/xbrl/A1.xml" in text
-    assert "SHA-256 cdcdcdcdcdcd…cdcdcd" in text and "retrieved 2026-10-02" in text
-    assert "Partly verified by a person" in text and "1 of 2 values" in text
-    assert "vs study-sample median" in text or "No study-sample median" in text
-    assert "Not a forecast" in text or any("not a forecast" in c.value for c in at.caption)
-
-
-def test_a_company_without_a_checkable_source_says_so_plainly(
-    fixture_world, repo_root, monkeypatch
-):
-    at = go(_run(monkeypatch, repo_root), "Companies")
-    at.selectbox(key="company_pick").set_value("XAA-02").run()
-    text = visible(at)
-    assert f"No filing is loaded for {FY}" in text
-    assert (
-        "Human verification: none" in text
-        or "Not yet verified" in text
-        or "No stored values" in text
+def text(at: AppTest) -> str:
+    return (
+        html(at)
+        + " "
+        + " ".join(m.value for m in at.markdown)
+        + " "
+        + " ".join(c.value for c in at.caption)
     )
 
 
-def test_the_company_page_opens_the_trace_with_that_company_and_year_chosen(
-    fixture_world, repo_root, monkeypatch
-):
-    at = go(_run(monkeypatch, repo_root), "Companies")
-    at.selectbox(key="company_pick").set_value("XAA-01").run()
-    at.button(key="link_company_to_source").click().run()
-    assert not at.exception
-    assert at.sidebar.radio[0].value == "Sources and filings"
-    assert at.selectbox(key="sources_company").value == "XAA-01"
-    assert at.selectbox(key="sources_fy").value == FY
-    text = visible(at)
-    assert "SHA-256 fingerprint" in text and "cd" * 32 in html_of(at)
-    assert "Retrieved" in text and "2026-10-02" in text
+def frame(rows):
+    return pd.DataFrame(rows, columns=state.COLUMNS)
+
+
+def with_frames(**periods):
+    def setup(at):
+        frames = {k.replace("_", " "): v for k, v in periods.items()}
+        at.session_state["bases"] = {k: v.copy() for k, v in frames.items()}
+        at.session_state["periods"] = {k: v.copy() for k, v in frames.items()}
+        at.session_state["period"] = next(iter(frames))
+        at.session_state["unit_name"] = "Test unit"
+
+    return setup
+
+
+# ---- every page renders -------------------------------------------------------------------------
+@pytest.mark.parametrize("page", vocab.PAGES)
+def test_every_page_renders_without_an_exception(page):
+    at = run(page)
+    assert not at.exception, [e.value for e in at.exception]
+    assert "GreenEIS" in html(at)
+
+
+def test_the_example_is_labelled_on_every_unit_page():
+    for page in vocab.UNIT_PAGES:
+        at = run(page)
+        assert "Illustrative factory" in html(at) and "Illustrative example" in html(at), page
+        assert "not real data" in html(at), page
+
+
+def test_a_page_address_opens_that_page():
+    at = AppTest.from_file(str(DASHBOARD / "app.py"), default_timeout=90)
+    at.query_params["page"] = "hotspots"
+    at.run()
+    assert at.session_state["view"] == "Hotspots"
+
+
+# ---- the example's numbers ----------------------------------------------------------------------
+def test_summary_shows_the_hand_calculated_figures():
+    t = text(run("Summary"))
+    assert "38.97 tCO2e" in t and "0.72" in t and "plus or minus 12.9%" in t
+    assert "33.94 to 43.99" in t
+    assert "Coal (boiler)" in t and "48.5% of emissions" in t
+    assert "does not certify" in t.lower()
+
+
+def test_summary_points_at_the_estimated_coal_as_the_place_to_improve_data():
+    t = text(run("Summary"))
+    assert "Improve this data first" in t and "89%" in t  # coal is 88.7% of the squared uncertainty
+    assert "coal grade is unknown" in t.lower()
+
+
+def test_hotspots_table_has_the_cost_link_and_the_vital_few():
+    t = text(run("Hotspots"))
+    assert "Vital few" in t
+    assert "4,759" in t and "11,004" in t and "32,892" in t and "33,417" in t
+    assert "Polluting but cheap" in t and "Costly but low in emissions" in t
     assert (
-        "Human verification" in text and "0 of 1 inputs" in text
-    )  # Energy intensity: one stored input
+        "Boiler and thermic-fluid heater efficiency" in t
+    )  # the boiler rule fired for Coal (boiler)
 
 
-def test_the_trace_follows_a_kpi_from_value_to_inputs_to_validation(
-    fixture_world, repo_root, monkeypatch
-):
-    at = go(_run(monkeypatch, repo_root), "Sources and filings")
-    at.selectbox(key="sources_company").set_value("XAA-01").run()
-    at.selectbox(key="sources_kpi").set_value("Emissions intensity (Scope 1+2)").run()
-    assert not at.exception
-    text = visible(at)
-    order = [
-        "KPI · Emissions intensity",
-        "Input figures",
-        "Normalisation",
-        "Validation",
-        "Source filing",
-        "SHA-256 fingerprint",
-        "Retrieved",
-        "Human verification",
+def test_what_if_reproduces_the_reference_scenarios():
+    def setup(at):
+        at.session_state["scenarios"] = [
+            whatif.ActivityChange("Diesel (generator and vehicle)", D(15)),
+            whatif.ActivityChange("Coal (boiler)", D(10)),
+            whatif.ElectricityShift(D(20)),
+        ]
+
+    t = text(run("What-if", setup))
+    assert "0.82" in t and "1.89" in t and "2.62" in t and "5.33" in t
+    assert "27,000" in t and "9,000" in t and "28,800" in t and "64,800" in t
+    assert "All scenarios together" in t
+
+
+def test_what_if_reports_a_scenario_that_no_longer_fits_the_data():
+    at = run(
+        "What-if",
+        lambda a: a.session_state.__setitem__("scenarios", [whatif.ActivityChange("Gone", D(10))]),
+    )
+    assert not at.exception and "A scenario cannot be applied" in html(at)
+
+
+def test_report_carries_the_numbers_and_the_standing_statements():
+    at = run("Report")
+    t = text(at)
+    assert "# Emissions summary" in t or "Emissions summary: Illustrative factory" in t
+    assert "38.97 tCO2e" in t and "does not certify" in t and "indicative design values" in t
+
+
+# ---- what goes wrong is said, not hidden --------------------------------------------------------
+def test_a_row_that_cannot_be_calculated_is_left_out_and_named():
+    rows = [
+        [state.GRID_NAME, "Grid", 18000.0, "kWh", "Measured", None, ""],
+        [
+            "Liquefied petroleum gas (LPG)",
+            "LPG",
+            100.0,
+            "L",
+            "Estimated",
+            None,
+            "",
+        ],  # no LPG density
     ]
-    positions = [text.index(step) for step in order]
-    assert positions == sorted(positions)
-    assert "(Scope 1 emissions + Scope 2 emissions) / Revenue from operations" in text
-    assert "not in the filing data" in text  # Scope 2 is missing and is said to be missing
-    assert at.code[0].value == "cd" * 32  # copyable fingerprint
-
-
-# ---- verification: the system finding and the human decision are separate -----------------------
-def test_verification_separates_the_system_finding_from_the_reviewer_decision(
-    fixture_world, repo_root, monkeypatch
-):
-    at = go(_run(monkeypatch, repo_root), "Data verification")
-    at.text_input(key="reviewer").set_value("dana").run()
+    at = run("Summary", with_frames(June=frame(rows)))
     assert not at.exception
-    text = visible(at)
-    assert "System finding" in text and "automatic" in text
-    assert "NO FLAG" in text or "FLAGGED" in text
-    assert "Reviewer decision" in text and "human" in text
-    assert at.radio(key="verification_result").options == ["Yes, it matches", "No, it is wrong"]
+    t = text(at)
+    assert "1 row(s) are left out" in t and "Row 2" in t and "cannot be entered in L" in t
+    assert "13.09 tCO2e" in t  # only the grid row is counted
+
+
+def test_a_blank_table_asks_for_data_instead_of_showing_zeros():
+    for page in ("Summary", "Hotspots", "What-if", "Report"):
+        at = run(page, with_frames(Blank=state.empty_frame()))
+        assert not at.exception, page
+        assert "No activities yet" in html(at), page
+
+
+def test_missing_data_class_is_treated_as_default_and_says_so():
+    rows = [["Coal (sub-bituminous, grade assumed)", "Coal", 1000.0, "kg", None, None, ""]]
+    at = run("Summary", with_frames(June=frame(rows)))
+    t = text(at)
+    assert "treated as Default" in t and "0.30" in t  # one default line: trust index 0.3
+
+
+def test_two_periods_can_be_shown_together_and_the_lines_are_merged():
+    example = state.example_frame()
+    at = run(
+        "Summary",
+        lambda a: (
+            with_frames(May=example, June=example)(a),
+            a.session_state.__setitem__("scope", "All periods entered"),
+        ),
+    )
+    t = text(at)
+    assert not at.exception and "77.93 tCO2e" in t  # 2 x 38.966
+    assert "all periods entered" in t
+
+
+# ---- study results ------------------------------------------------------------------------------
+def test_study_page_without_a_result_says_how_to_make_one():
+    t = html(run("Study results"))
+    assert "No study result yet" in t
+
+
+def test_study_page_marks_synthetic_results(tmp_path):
+    result = run_study(synthetic.generate(300, 2), "synthetic", "invented", seed=2, n_boot=100)
+    write(result, tmp_path / "outputs" / "study_test.json")
+    at = run("Study results")
+    t = text(at)
+    assert not at.exception
+    assert "Synthetic data." in t and "SYNTHETIC DATA" in t
+    for h in ("H1", "H2", "H3", "H4", "H5"):
+        assert h in t
+    assert "uncalibrated placeholders" in t
+
+
+# ---- the entry table -> activities --------------------------------------------------------------
+def test_frame_to_activities_by_hand():
+    rows = [
+        [
+            "Coal (sub-bituminous, grade assumed)",
+            "Coal",
+            10000.0,
+            "kg",
+            "Estimated",
+            90000.0,
+            "boiler",
+        ],
+        [None, None, None, None, None, None, None],  # a blank row is skipped silently
+        ["Coal (sub-bituminous, grade assumed)", "Coal", 5.0, "t", "Measured", None, ""],
+        [state.GRID_NAME, "", None, "kWh", "Measured", None, ""],  # no quantity
+        [state.GRID_NAME, "", 100.0, None, "Measured", None, ""],  # no unit
+        ["Peat", "x", 1.0, "kg", "Default", None, ""],  # unknown item
+    ]
+    acts, errors, warnings = state.frame_to_activities(frame(rows))
+    assert [a.name for a in acts] == ["Coal", "Coal (2)"]
     assert (
-        at.radio(key="verification_result").value == "ok"
-    )  # the two results the data layer stores
+        acts[0].quantity == D("10000.0")
+        and acts[0].cost_inr == D("90000.0")
+        and acts[0].equipment == "boiler"
+    )
+    assert errors == ["Row 4: enter a quantity.", "Row 5: choose a unit.", "Row 6: choose an item."]
+    assert any("renamed 'Coal (2)'" in w for w in warnings)
 
 
-# ---- comparison and units -----------------------------------------------------------------------
-def test_the_comparison_table_names_units_and_warns_across_sectors(
-    fixture_world, repo_root, monkeypatch
-):
-    at = go(_run(monkeypatch, repo_root), "Compare companies")
-    at.multiselect(key="compare_codes").set_value(["XAA-01", "XAA-03"]).run()
-    text = visible(at)
-    assert "tCO2e per ₹ crore" in text and "lower is better" in text
-    assert "Best of those compared" in text
-    assert not at.warning
-    at.multiselect(key="compare_codes").set_value(["XAA-01", "XBB-01"]).run()
-    assert any("Direct comparison may not be meaningful" in w.value for w in at.warning)
-
-
-def test_the_compliance_page_is_labelled_a_monitoring_view_with_icons_and_words(
-    fixture_world, repo_root, monkeypatch
-):
-    at = go(_run(monkeypatch, repo_root), "Compliance check")
-    assert any("Monitoring view, not a legal finding" in w.value for w in at.warning)
-    html = html_of(at)
-    for word in (
-        "Loaded",
-        "Stated",
-        "Statement present",
-        "Consistent",
-        "Review required",
-        "Check failed",
-    ):
-        assert word in html
-    assert html.count("eis-st ") >= 7  # every result is an icon plus a word
-    assert "check_circle" in html and "warning" in html and "cancel" in html
-
-
-def test_a_chart_choice_is_explained_in_a_labelled_card(fixture_world, repo_root, monkeypatch):
-    at = go(_run(monkeypatch, repo_root), "Query and chart")
-    metric = "Emissions intensity (Scope 1+2) (tCO2e per ₹ crore)"
-    at.multiselect(key="query_metrics_d").set_value([metric]).run()
-    at.multiselect(key="query_years").set_value([PRIOR, FY]).run()
-    text = visible(at)
-    assert "Recommended visualisation" in text and "Line chart" in text
-    assert any(c.value.startswith("Chart chosen:") and "trend" in c.value for c in at.caption)
-
-
-def test_the_metrics_guide_shows_a_formula_for_each_metric(fixture_world, repo_root, monkeypatch):
-    at = go(_run(monkeypatch, repo_root), "Metrics guide")
-    formulas = [latex.value.strip("$\n") for latex in at.latex]
-    assert len(formulas) == 5 and all(f.startswith(r"\frac{") for f in formulas)
-    assert any("Scope 1 emissions" in f for f in formulas)
-    text = visible(at)
-    for heading in (
-        "What it measures",
-        "How it is computed",
-        "How to interpret it",
-        "Important limitation",
-    ):
-        assert heading in text
-
-
-def test_the_about_page_puts_the_limitations_before_the_methodology(
-    fixture_world, repo_root, monkeypatch
-):
-    at = go(_run(monkeypatch, repo_root), "About")
-    text = visible(at)
-    assert text.index("Limitations") < text.index("Data sources and methodology")
-    assert "The system does not" in text and "Use a language model on the evidence pages" in text
+def test_aggregate_merges_units_costs_and_takes_the_least_trusted_class():
+    a = Activity("coal", D("10"), "t", "measured", D("1000"), "Coal", "boiler")
+    b = Activity("coal", D("5000"), "kg", "estimated", D("500"), "Coal", "boiler")
+    c = Activity("coal", D("1"), "t", "measured", None, "Coal", "boiler")  # a line with no cost
+    d = Activity("diesel", D("100"), "L", "default", D("10"), "Diesel")
+    merged = state.aggregate([a, b, d])
+    assert len(merged) == 2
+    coal = next(m for m in merged if m.item_id == "coal")
+    assert coal.quantity == D("15000") and coal.unit == "kg" and coal.cost_inr == D("1500")
+    assert coal.data_class == "estimated"  # the weakest of measured and estimated
+    assert next(m for m in merged if m.item_id == "diesel").quantity == D("85.00")  # 100 L x 0.85
+    assert (
+        state.aggregate([a, c])[0].cost_inr is None
+    )  # one missing cost makes the merged cost unknown

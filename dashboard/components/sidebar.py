@@ -1,4 +1,4 @@
-"""The left sidebar: brand, grouped navigation, the pilot dataset, and the display switch.
+"""The left sidebar: brand, grouped navigation, and the unit being worked on.
 
 Navigation is a real `st.radio` (keyboard and screen-reader friendly, and its state is what
 `?page=` reads and writes). CSS turns it into a grouped list: this module generates the per-page rules
@@ -6,6 +6,8 @@ Navigation is a real `st.radio` (keyboard and screen-reader friendly, and its st
 """
 
 from __future__ import annotations
+
+from collections.abc import Callable
 
 import streamlit as st
 
@@ -34,39 +36,41 @@ def nav_css(pages: list[str]) -> str:
 
 def sidebar_brand_html() -> str:
     return (
-        f'<div class="eis-brand">{BRAND_MARK}<div><div class="eis-brand-name">Green EIS</div>'
-        '<div class="eis-brand-sub">Green Executive Information System</div></div></div>'
+        f'<div class="eis-brand">{BRAND_MARK}<div><div class="eis-brand-name">GreenEIS</div>'
+        '<div class="eis-brand-sub">Green Enterprise Information System</div></div></div>'
     )
 
 
-def pilot_block_html(companies: int, sectors: int, latest_fy: str | None) -> str:
+def unit_block_html(unit: dict) -> str:
+    """The unit being worked on: name, period, number of activities, and whether it is the example."""
     rows = [
-        ("Companies", str(companies)),
-        ("Sectors", str(sectors)),
-        ("Latest year loaded", latest_fy or "none"),
+        ("Unit", unit.get("name") or "not named"),
+        ("Period", unit.get("period") or "none"),
+        ("Activities", str(unit.get("activities", 0))),
     ]
     body = "".join(
         f'<div class="eis-pilot-row"><span>{esc(k)}</span><b>{esc(v)}</b></div>' for k, v in rows
     )
-    return f'<div class="eis-pilot"><div class="eis-pilot-label">Pilot dataset</div>{body}</div>'
+    label = "Illustrative example" if unit.get("is_example") else "Current unit"
+    return f'<div class="eis-pilot"><div class="eis-pilot-label">{esc(label)}</div>{body}</div>'
 
 
 def render_sidebar(
-    pages: list[str], pilot: dict, notice: str | None, captions: bool = False
-) -> tuple[str, bool]:
-    """Draw the sidebar and return (selected page, show real company names)."""
+    pages: list[str],
+    unit: dict,
+    notice: str | None,
+    extra: Callable[[], None] | None = None,
+) -> str:
+    """Draw the sidebar and return the selected page. `extra` draws controls under the unit block."""
     with st.sidebar:
         render(sidebar_brand_html())
         page = st.radio("Page", pages, key="view", label_visibility="collapsed")
-        render(pilot_block_html(pilot["companies"], pilot["sectors"], pilot["latest_fy"]))
-        real_names = st.toggle(
-            "Show real company names",
-            value=True,
-            help="Switch off to see the masked codes (CEM-01, STL-04 ...) that the models saw.",
-        )
+        render(unit_block_html(unit))
+        if extra:
+            extra()
         if notice:
             st.info(notice)
-    return page, real_names
+    return page
 
 
 __all__ = ["GROUPS", "nav_css", "render_sidebar"]

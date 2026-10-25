@@ -34,15 +34,20 @@ def toast(message: str, kind: str = "ok") -> None:
     st.toast(message, icon=glyph.get(kind, ":material/info:"))
 
 
-DATA_CHECK_NOTE = (
-    "A data check marks a figure to verify against its filing. It is not a finding that a company "
-    "misreported, and it is not a performance ranking: the figure is shown, not placed."
+# Standing notes: said the same way wherever they appear.
+ESTIMATE_NOTE = (
+    "GreenEIS estimates; it does not certify. Results are a management aid, not an audit and not a "
+    "replacement for national inventories."
 )
-STUDY_SAMPLE_NOTE = (
-    "Benchmarks are the median, P25 and P75 of the companies in this study sample, not an external "
-    "industry benchmark. With about five companies per sector they describe this sample only."
+PLACEHOLDER_NOTE = (
+    "The trust scores and uncertainty ranges are indicative design values, not calibrated measurements "
+    "of error. The study tests them; until it has run on real data, treat the ranges as rough."
 )
-POSITION_NOTE = (
-    "Colours show position among companies in the same sector. They are not environmental ratings, "
-    "ESG scores or a judgement of any company."
+EXAMPLE_NOTE = (
+    "This is an illustrative factory taken from the reference document's worked example. Its numbers are "
+    "placeholders, not a real unit. Replace them on the Data entry page."
+)
+SCOPE_NOTE = (
+    "Scope: fuel combustion and purchased electricity. Process emissions and supply-chain (Scope 3) "
+    "emissions are not included."
 )
