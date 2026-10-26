@@ -36,7 +36,10 @@ def _cell(value: object) -> str:
 
 
 def table_html(
-    columns: Sequence[Column], rows: Sequence[Sequence[object]], first_bold: bool = True
+    columns: Sequence[Column],
+    rows: Sequence[Sequence[object]],
+    first_bold: bool = True,
+    compact: bool = False,
 ) -> str:
     head = "".join(
         f'<th class="{"firstcol" if i == 0 else ""}{" num" if c.numeric else ""}">'
@@ -62,7 +65,7 @@ def table_html(
             cells.append(f'<td class="{cls}">{text}</td>')
         body.append(f"<tr>{''.join(cells)}</tr>")
     return (
-        '<div class="eis-tablewrap"><table class="eis-table">'
+        f'<div class="eis-tablewrap"><table class="eis-table{" compact" if compact else ""}">'
         f"<thead><tr>{head}</tr></thead><tbody>{''.join(body)}</tbody></table></div>"
     )
 

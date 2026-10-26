@@ -5,15 +5,26 @@ decorative (aria-hidden); the words beside them carry the meaning.
 
 from __future__ import annotations
 
+from greeneis import gaps
+
 from .markup import esc
 
 # page -> icon, used by the sidebar and the home page
+GAP_ICONS = {
+    1: "database",
+    2: "verified",
+    3: "whatshot",
+    4: "payments",
+    5: "tune",
+    6: "build",
+    7: "description",
+}
+
 PAGE_ICONS = {
-    "Home": "home",
-    "Research gaps": "flag",
-    "National picture": "public",
-    "Trust in numbers": "verified",
-    "Data and sources": "database",
+    "Study": "menu_book",
+    **{gaps.get(n).nav_label: glyph for n, glyph in GAP_ICONS.items()},
+    "Overall Findings": "fact_check",
+    "References": "library_books",
     "Data entry": "edit_note",
     "Summary": "dashboard",
     "Hotspots": "whatshot",

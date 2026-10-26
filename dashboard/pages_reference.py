@@ -59,14 +59,8 @@ LIMITATIONS = [
 ]
 
 
-def factors_and_method(ctx: state.Context) -> None:
-    page_header(
-        "Factors and method",
-        "Every emission factor with its source and year, the formulas, and the trust classes.",
-        read="A factor marked 'Verified in source' was read in the document named. Others say what is still open.",
-    )
-    lib = default_library()
-    section("Calculation")
+def calculation_formulas() -> None:
+    """The emission arithmetic, as formulas."""
     st.latex(
         r"E_{\text{fuel}}\,(\mathrm{TJ}) = Q\,(\mathrm{kt}) \times \mathrm{NCV}\,(\mathrm{TJ/kt})"
     )
@@ -80,7 +74,9 @@ def factors_and_method(ctx: state.Context) -> None:
         f"Each gas = energy times its factor (kg per TJ) divided by 1000. Warming potentials CH4 = {GWP_AR5['ch4']}, N2O = {GWP_AR5['n2o']} (100-year, as used by CSTEP)."
     )
 
-    section("Fuel factors", "kg per TJ; NCV in TJ per kt")
+
+def fuel_factor_table() -> None:
+    lib = default_library()
     render(
         table_html(
             [
@@ -106,7 +102,10 @@ def factors_and_method(ctx: state.Context) -> None:
             ],
         )
     )
-    section("Grid electricity", "tCO2 per MWh, CO2 only")
+
+
+def grid_factor_table() -> None:
+    lib = default_library()
     render(
         table_html(
             [
@@ -128,11 +127,10 @@ def factors_and_method(ctx: state.Context) -> None:
             ],
         )
     )
-    st.caption(
-        "Fuels not yet in the library (pet coke, wood, biomass) are not available until an Indian source is verified."
-    )
 
-    section("Trust classes", "Placeholders, not findings")
+
+def trust_class_table() -> None:
+    """The placeholder scores and ranges, and the two roll-up formulas."""
     render(
         table_html(
             [
@@ -158,8 +156,30 @@ def factors_and_method(ctx: state.Context) -> None:
         + " The root-sum-square assumes independent errors, which is optimistic when one proxy feeds several inputs."
     )
 
-    section("Limitations")
+
+def limitations_table() -> None:
     render(table_html([Column("Limitation"), Column("How it is handled")], LIMITATIONS))
+
+
+def factors_and_method(ctx: state.Context) -> None:
+    page_header(
+        "Factors and method",
+        "Every emission factor with its source and year, the formulas, and the trust classes.",
+        read="A factor marked 'Verified in source' was read in the document named. Others say what is still open.",
+    )
+    section("Calculation")
+    calculation_formulas()
+    section("Fuel factors", "kg per TJ; NCV in TJ per kt")
+    fuel_factor_table()
+    section("Grid electricity", "tCO2 per MWh, CO2 only")
+    grid_factor_table()
+    st.caption(
+        "Fuels not yet in the library (pet coke, wood, biomass) are not available until an Indian source is verified."
+    )
+    section("Trust classes", "Placeholders, not findings")
+    trust_class_table()
+    section("Limitations")
+    limitations_table()
 
 
 def about(ctx: state.Context) -> None:

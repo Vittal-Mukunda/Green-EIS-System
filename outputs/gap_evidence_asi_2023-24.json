@@ -1,0 +1,95 @@
+{
+  "provenance": {
+    "source": "ASI 2023-24, gas as lpg, up to 50 persons",
+    "synthetic": false,
+    "reference_quantity": "reported by the factory in the ASI return (purchase records), not metered",
+    "created_utc": "2026-10-26T07:05:03Z",
+    "aggregates_only": true,
+    "data_log": {
+      "round": "2023-24",
+      "max_employees": 50,
+      "gas_item": "lpg",
+      "factories in file": 68641,
+      "open factories": 57274,
+      "open with persons recorded": 57274,
+      "small (persons <= max_employees)": 24517,
+      "dropped: industry code unusable": 0,
+      "dropped: unit code not convertible": 0,
+      "item records": 26664,
+      "factories with at least one item": 24154,
+      "records: grid_electricity": 24107,
+      "records: lpg": 1579,
+      "records: coal": 978,
+      "factories with two or more items": 2442,
+      "clusters (states)": 36
+    }
+  },
+  "coverage": {
+    "small_factories": 24517,
+    "usable_quantity": 24154,
+    "no_quantity_lines": {
+      "Petrol, diesel and oil": 18235,
+      "Other fuel": 2668,
+      "Electricity generated and consumed by the factory": 0
+    },
+    "spend_without_quantity_any_line": 19014,
+    "usable_and_spend_without_quantity": 18862,
+    "spend_without_quantity_only": 152,
+    "neither": 211
+  },
+  "cost_link": [
+    {
+      "item": "grid_electricity",
+      "records": 24107,
+      "spend_inr": 77094544191.0,
+      "co2e_t": 6634365.09545435,
+      "spend_share": 0.8726344737326459,
+      "co2e_share": 0.826775986897699,
+      "inr_per_tco2e_pooled": 11620.485620217472,
+      "inr_per_tco2e_q25": 10729.022802513005,
+      "inr_per_tco2e_median": 11691.884384579476,
+      "inr_per_tco2e_q75": 12723.52115334403
+    },
+    {
+      "item": "coal",
+      "records": 978,
+      "spend_inr": 4512078398.0,
+      "co2e_t": 1015366.3012646999,
+      "spend_share": 0.05107229311226436,
+      "co2e_share": 0.1265351640605328,
+      "inr_per_tco2e_pooled": 4443.7937248655335,
+      "inr_per_tco2e_q25": 3969.112970181633,
+      "inr_per_tco2e_median": 5402.560736038477,
+      "inr_per_tco2e_q75": 7349.390886115692
+    },
+    {
+      "item": "lpg",
+      "records": 1579,
+      "spend_inr": 6740270081.0,
+      "co2e_t": 374649.0891588651,
+      "spend_share": 0.07629323315508975,
+      "co2e_share": 0.046688849041768274,
+      "inr_per_tco2e_pooled": 17990.88874373821,
+      "inr_per_tco2e_q25": 19727.219289536635,
+      "inr_per_tco2e_median": 25062.611639112398,
+      "inr_per_tco2e_q75": 30974.416521486033
+    }
+  ],
+  "hotspots": {
+    "factories_with_a_fuel": 24154,
+    "single_fuel_factories": 21712,
+    "multi_fuel_factories": 2442,
+    "thin_lead_below": 0.1,
+    "top_share_q25": 0.7378269684234641,
+    "top_share_median": 0.8998895182351621,
+    "top_share_q75": 0.9796467751997948,
+    "lead_median": 0.7997790364703242,
+    "thin_lead_factories": 109,
+    "top_item_counts": {
+      "grid_electricity": 1443,
+      "coal": 746,
+      "lpg": 253
+    },
+    "biggest_cost_not_biggest_emitter": 257
+  }
+}

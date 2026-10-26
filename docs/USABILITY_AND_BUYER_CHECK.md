@@ -1,5 +1,9 @@
 # Usability check and buyer/lender review (protocol, fixed before anyone is asked)
 
+Run the sessions on the unit tool, `streamlit run dashboard/legacy_app.py`: its Data entry, Summary,
+Hotspots, What-if and Report pages are the ones the tasks below name. They are no longer in the research
+navigation of `dashboard/app.py`.
+
 Purpose: give two supporting claims some evidence. **Gap 4 and the data-entry design (gap 1):** can a small
 manufacturer's manager with ordinary bills enter data and understand the trust label? **Gap 7:** would a
 buyer or lender find the one-page report useful? This is a small qualitative check, reported separately from

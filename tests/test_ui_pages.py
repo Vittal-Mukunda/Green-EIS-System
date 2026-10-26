@@ -1,5 +1,9 @@
-"""The pages, run through Streamlit's AppTest. The example factory's numbers are the hand-worked ones
-(see test_analysis_modules.py): 38.97 tCO2e, trust index 0.72, plus or minus 12.9%."""
+"""The pages, run through Streamlit's AppTest.
+
+The research navigation (Study, one page per gap, Overall Findings, References) runs `dashboard/app.py`;
+the earlier unit tool and reference pages run `dashboard/legacy_app.py`. The example factory's numbers are
+the hand-worked ones (see test_analysis_modules.py): 38.97 tCO2e, trust index 0.72, plus or minus 12.9%.
+The literals about the real ASI results were read by hand from outputs/*.json, not recomputed."""
 
 from __future__ import annotations
 
@@ -39,7 +43,8 @@ def with_example(at) -> None:
 
 
 def run(page, before=None, example=True) -> AppTest:
-    at = AppTest.from_file(str(DASHBOARD / "app.py"), default_timeout=90)
+    app = "legacy_app.py" if page in vocab.LEGACY_PAGES else "app.py"
+    at = AppTest.from_file(str(DASHBOARD / app), default_timeout=120)
     at.session_state["view"] = page
     if example:
         with_example(at)
@@ -79,25 +84,32 @@ def with_frames(**periods):
 
 
 # ---- every page renders -------------------------------------------------------------------------
-@pytest.mark.parametrize("page", vocab.PAGES)
+@pytest.mark.parametrize("page", vocab.PAGES + vocab.LEGACY_PAGES)
 def test_every_page_renders_without_an_exception(page):
-    at = run(page)
+    at = run(page, example=page in vocab.LEGACY_PAGES)
     assert not at.exception, [e.value for e in at.exception]
     assert "GreenEIS" in html(at)
 
 
 def test_the_example_is_labelled_on_every_unit_page():
-    for page in vocab.UNIT_PAGES:
+    for page in vocab.LEGACY_UNIT_PAGES:
         at = run(page)
         assert "Illustrative factory" in html(at) and "Illustrative example" in html(at), page
         assert "not real data" in html(at), page
 
 
-def test_the_app_opens_on_home_and_starts_with_no_unit_data():
-    at = AppTest.from_file(str(DASHBOARD / "app.py"), default_timeout=90)
+def test_the_app_opens_on_the_study_page():
+    at = AppTest.from_file(str(DASHBOARD / "app.py"), default_timeout=120)
     at.run()
     assert not at.exception, [e.value for e in at.exception]
-    assert at.session_state["view"] == "Home"
+    assert at.session_state["view"] == "Study"
+
+
+def test_the_unit_tool_starts_with_no_unit_data():
+    at = AppTest.from_file(str(DASHBOARD / "legacy_app.py"), default_timeout=120)
+    at.run()
+    assert not at.exception, [e.value for e in at.exception]
+    assert at.session_state["view"] == "Data entry"
     assert at.session_state["unit_name"] == ""
     assert at.session_state["periods"][state.BLANK_PERIOD].empty
     assert "Illustrative" not in html(at)
@@ -112,10 +124,14 @@ def test_the_unit_pages_ask_for_a_bill_instead_of_showing_an_example_when_empty(
 
 
 def test_a_page_address_opens_that_page():
-    at = AppTest.from_file(str(DASHBOARD / "app.py"), default_timeout=90)
+    at = AppTest.from_file(str(DASHBOARD / "legacy_app.py"), default_timeout=120)
     at.query_params["page"] = "hotspots"
     at.run()
     assert at.session_state["view"] == "Hotspots"
+    at = AppTest.from_file(str(DASHBOARD / "app.py"), default_timeout=120)
+    at.query_params["page"] = "gap-3-what-to-fix-first"
+    at.run()
+    assert at.session_state["view"] == vocab.gap_page(3)
 
 
 # ---- the example's numbers ----------------------------------------------------------------------
@@ -282,76 +298,3 @@ def test_aggregate_merges_units_costs_and_takes_the_least_trusted_class():
     assert (
         state.aggregate([a, c])[0].cost_inr is None
     )  # one missing cost makes the merged cost unknown
-
-
-# ---- public pages (real aggregate results) -------------------------------------------------------
-# Literals below were read by hand from outputs/study_asi_2023-24.json (and the NIC 13 cut), not recomputed.
-import pages_public  # noqa: E402
-
-PUBLIC_PAGES = ("Home", "Research gaps", "National picture", "Trust in numbers", "Data and sources")
-
-
-@pytest.mark.parametrize("page", PUBLIC_PAGES)
-def test_every_public_page_renders_and_ends_with_the_estimate_note(page):
-    at = run(page, example=False)
-    assert not at.exception, [e.value for e in at.exception]
-    assert "does not certify" in text(at).lower()
-
-
-def test_home_shows_the_real_headline_numbers():
-    t = text(run("Home", example=False))
-    assert "24,154" in t  # factories tested
-    assert "6%" in t and "75%" in t  # median error, Estimated and Default
-    assert "599%" in t  # Default 90th percentile
-    assert "96%" in t  # top hotspot kept
-    assert "67 factories" in t  # H5 rests on 67
-    assert "What this does not show" in t and "not metered" in t
-
-
-def test_the_gaps_page_covers_all_seven_gaps_and_claims_no_more_than_the_evidence():
-    at = run("Research gaps", example=False)
-    t = text(at)
-    labels = " ".join(b.label for b in at.button)
-    for n in "1234567":
-        assert f"Gap {n}:" in labels, n  # one link to the evidence per gap
-    assert "Partly addressed" in t
-    assert "Evidence on real data" in t and "Built, not tested with buyers" in t
-    assert "not a claim to be first" in t
-    for banned in ("solved", "closed the gap", "certified emissions", "the first tool"):
-        assert banned not in t.lower(), banned
-
-
-def test_the_national_page_shows_the_published_totals_and_the_cstep_recomputation():
-    t = text(run("National picture", example=False))
-    assert "110 MtCO2e" in t and "105 MtCO2e" in t and "26 Mt" in t and "69.1" in t
-    assert "56 published emission figures" in t and "43 agree" in t and "13 do not" in t
-    assert "we do not correct it" in t.lower()
-
-
-def test_the_trust_page_shows_per_fuel_errors_and_labels_the_textile_cut_exploratory():
-    t = text(run("Trust in numbers", example=False))
-    assert "Read this first" in t and "reported in its return" in t
-    assert "Electricity" in t and "Coal" in t and "LPG" in t
-    assert "599%" in t and "placeholders" in t.lower()
-    assert "Textile factories only" in t and "1,105" in t and "exploratory" in t.lower()
-    assert "Not supported" in t and "Insufficient data" in t  # textile H4 and H5
-
-
-def test_a_synthetic_result_is_never_shown_on_a_public_page(tmp_path, monkeypatch):
-    out = tmp_path / "pub"
-    result = run_study(synthetic.generate(300, 2), "synthetic", "invented", seed=2, n_boot=100)
-    write(result, out / pages_public.MAIN_FILE)
-    monkeypatch.setattr(pages_public, "OUTPUTS", out)
-    for page in ("Home", "Trust in numbers"):
-        at = run(page, example=False)
-        assert not at.exception, page
-        assert "The real results file is not available" in html(at), page
-        assert "SYNTHETIC" not in text(at), page
-
-
-def test_public_pages_say_so_when_the_results_file_is_missing(tmp_path, monkeypatch):
-    monkeypatch.setattr(pages_public, "OUTPUTS", tmp_path / "nothing")
-    for page in ("Home", "Research gaps", "Trust in numbers", "Data and sources"):
-        at = run(page, example=False)
-        assert not at.exception, page
-        assert "not available" in text(at), page

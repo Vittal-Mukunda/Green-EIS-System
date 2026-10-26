@@ -22,3 +22,5 @@ data/reference/
 outputs/*
 # aggregate results of the real-data run (no factory-level rows); the Study results page reads them
 !outputs/study_asi_2023-24*.json
+# aggregate ASI facts for the research-gap pages (counts, shares, quantiles; no factory-level rows; V-40)
+!outputs/gap_evidence_asi_2023-24.json

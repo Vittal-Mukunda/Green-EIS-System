@@ -18,7 +18,7 @@ Working notes, decisions and rules for Claude Code: [CLAUDE.md](CLAUDE.md).
 
 Built and tested: factor library, emission engine (checked against the reference document's worked example
 and CSTEP's published tables), trust score, hotspots and cost link, what-if scenarios, recommendations,
-one-page report, the study harness for the five hypotheses, and a thirteen-page site (public overview pages that explain the real results in plain words, the unit tool, and reference pages). The study has been
+one-page report, the study harness for the five hypotheses, and a ten-page research site: Study, one analysis page for each of the seven research gaps, Overall Findings and References (the earlier unit tool, with data entry, still runs from `dashboard/legacy_app.py`). The study has been
 run once on real data (ASI 2023-24 factory returns): see [docs/RESULTS_ASI_2023-24.md](docs/RESULTS_ASI_2023-24.md)
 for what it does and does not show. **Not done:** the trust scores are still uncalibrated placeholders; the
 ASI terms of use are unread; calibration is untested on a second year (see
@@ -57,6 +57,8 @@ The virtualenv lives outside OneDrive.
 & $HOME\.venvs\eis-gauge\Scripts\python.exe -m greeneis.study.run --source synthetic --out outputs\study_synthetic.json
 ```
 
-The app opens on the Home page, and the unit tool starts empty: nothing is pre-filled. A labelled
-illustrative factory from the reference document (not real data) can be loaded from the Data entry page.
+The app opens on the Study page. The research pages read the committed result files in `outputs/`; nothing
+is entered. The earlier unit tool (`streamlit run dashboard/legacy_app.py`) starts empty: nothing is
+pre-filled, and a labelled illustrative factory from the reference document (not real data) can be loaded
+from its Data entry page.
 The synthetic study run exercises the pipeline only; its results say nothing about the world.

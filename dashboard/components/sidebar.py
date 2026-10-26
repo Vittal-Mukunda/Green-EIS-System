@@ -13,6 +13,7 @@ import streamlit as st
 
 from .icons import BRAND_MARK, PAGE_ICONS
 from .markup import esc, render
+from .navigation import request_scroll_top
 from .page_header import GROUPS, group_of
 
 NAV = '[data-testid="stSidebar"] [data-testid="stRadioGroup"] > div:nth-child({n})'
@@ -57,15 +58,18 @@ def unit_block_html(unit: dict) -> str:
 
 def render_sidebar(
     pages: list[str],
-    unit: dict,
+    unit: dict | None,
     notice: str | None,
     extra: Callable[[], None] | None = None,
 ) -> str:
     """Draw the sidebar and return the selected page. `extra` draws controls under the unit block."""
     with st.sidebar:
         render(sidebar_brand_html())
-        page = st.radio("Page", pages, key="view", label_visibility="collapsed")
-        render(unit_block_html(unit))
+        page = st.radio(
+            "Page", pages, key="view", label_visibility="collapsed", on_change=request_scroll_top
+        )
+        if unit:
+            render(unit_block_html(unit))
         if extra:
             extra()
         if notice:

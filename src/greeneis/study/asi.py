@@ -117,20 +117,13 @@ def read_blocks(path: str | Path) -> Blocks:
     )
 
 
-def build_cases(
-    blocks: Blocks,
-    max_employees: int = 50,
-    gas_item: str = "lpg",
-    year: str = ROUND,
-) -> CaseBuild:
-    """The case table (see study.cases) from the three blocks, with a count of everything left out."""
-    if gas_item not in ("lpg", "natural_gas"):
-        raise ValueError("gas_item must be 'lpg' or 'natural_gas'")
-    log: dict[str, int | str] = {
-        "round": year,
-        "max_employees": max_employees,
-        "gas_item": gas_item,
-    }
+def small_factories(
+    blocks: Blocks, max_employees: int, log: dict[str, int | str] | None = None
+) -> pd.DataFrame:
+    """Open factories with at most `max_employees` persons and a usable industry code, with columns
+    `employees` and `sector` added. This is the population every study table starts from; `log`, if given,
+    receives the count left after each step."""
+    log = {} if log is None else log
     a = blocks.a.copy()
     log["factories in file"] = len(a)
     a = a[a["status"] == OPEN_STATUS]
@@ -149,6 +142,24 @@ def build_cases(
     log["dropped: industry code unusable"] = int((~usable_nic).sum())
     a = a[usable_nic]
     a["sector"] = "NIC" + a["nic5"].str[:2]
+    return a
+
+
+def build_cases(
+    blocks: Blocks,
+    max_employees: int = 50,
+    gas_item: str = "lpg",
+    year: str = ROUND,
+) -> CaseBuild:
+    """The case table (see study.cases) from the three blocks, with a count of everything left out."""
+    if gas_item not in ("lpg", "natural_gas"):
+        raise ValueError("gas_item must be 'lpg' or 'natural_gas'")
+    log: dict[str, int | str] = {
+        "round": year,
+        "max_employees": max_employees,
+        "gas_item": gas_item,
+    }
+    a = small_factories(blocks, max_employees, log)
 
     h = blocks.h.copy()
     h["item"] = h["item"].astype(str).str.strip()

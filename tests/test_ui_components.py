@@ -126,11 +126,22 @@ def test_stat_strip_sets_its_column_count():
 
 # ---- shell, navigation --------------------------------------------------------------------------
 def test_every_page_has_an_icon_a_group_and_a_note():
-    for page in vocab.PAGES:
+    for page in vocab.PAGES + vocab.LEGACY_PAGES:
         assert page in PAGE_ICONS, page
         assert group_of(page) != "GreenEIS", page
         assert page in vocab.PAGE_NOTES, page
-    assert set(PAGE_ICONS) == set(vocab.PAGES)
+    assert set(PAGE_ICONS) == set(vocab.PAGES + vocab.LEGACY_PAGES)
+
+
+def test_the_navigation_is_study_one_page_per_gap_overall_findings_references():
+    from greeneis import gaps
+
+    assert vocab.PAGES[0] == "Study" and vocab.PAGES[-2:] == ("Overall Findings", "References")
+    assert len(vocab.PAGES) == len(gaps.GAPS) + 3
+    assert list(vocab.ANALYSIS_PAGES) == [g.nav_label for g in gaps.GAPS]
+    assert not set(vocab.LEGACY_PAGES) & set(
+        vocab.PAGES
+    )  # Data entry and the rest are not in the nav
 
 
 def test_the_sidebar_groups_follow_the_display_order():
@@ -141,29 +152,33 @@ def test_navigation_css_puts_a_heading_above_the_first_page_of_each_group_only()
     css = nav_css(list(vocab.PAGES))
     for heading in GROUPS:
         assert css.count(f'content:"{heading}"') == 1
-    assert 'nth-child(1) [data-testid="stRadioOption"]::before{content:"home"}' in css
-    subset = nav_css(["Summary", "About"])
-    assert 'content:"Unit"' in subset and 'content:"Reference"' in subset
-    assert 'content:"Study"' not in subset and 'content:"Overview"' not in subset
+    assert 'nth-child(1) [data-testid="stRadioOption"]::before{content:"menu_book"}' in css
+    subset = nav_css(["Study", "References"])
+    assert 'content:"Study"' in subset and 'content:"References"' in subset
+    assert 'content:"Analyses"' not in subset and 'content:"Findings"' not in subset
 
 
 def test_the_breadcrumb_names_the_group_and_the_page():
-    html = breadcrumb_html("Hotspots")
-    assert "GreenEIS" in html and "Unit" in html and "Hotspots" in html
+    html = breadcrumb_html("Gap 2 · Uncertainty and conflict")
+    assert "GreenEIS" in html and "Analyses" in html and "Uncertainty and conflict" in html
     assert 'aria-label="Breadcrumb"' in html
+    assert breadcrumb_html("Study").count("Study") == 1  # a one-page group is not named twice
+    assert "Unit tool" in breadcrumb_html("Hotspots")
 
 
 def test_search_only_offers_pages():
-    targets = search_targets(["Summary", "About"])
-    assert targets == {"Page · Summary": "Summary", "Page · About": "About"}
+    targets = search_targets(["Study", "References"])
+    assert targets == {"Page · Study": "Study", "Page · References": "References"}
 
 
 def test_slug_is_a_stable_address():
     assert (
         vocab.slug("What-if") == "what-if"
-        and vocab.slug("Factors and method") == "factors-and-method"
+        and vocab.slug("Gap 1 · Firm-level data") == "gap-1-firm-level-data"
+        and vocab.slug("Overall Findings") == "overall-findings"
     )
-    assert len({vocab.slug(p) for p in vocab.PAGES}) == len(vocab.PAGES)
+    every = vocab.PAGES + vocab.LEGACY_PAGES
+    assert len({vocab.slug(p) for p in every}) == len(every)
 
 
 def test_the_unit_block_says_when_it_is_the_example():
@@ -221,11 +236,17 @@ def test_pages_do_not_write_css_or_html_structure_themselves():
     """Pages call components. Raw markup belongs in dashboard/components/."""
     root = pathlib.Path(__file__).resolve().parents[1] / "dashboard"
     for path in [
-        root / "pages_public.py",
+        root / "sections.py",
         root / "pages_unit.py",
         root / "pages_study.py",
         root / "pages_reference.py",
+        root / "pages_gap.py",
+        root / "pages_findings.py",
+        root / "pages_bibliography.py",
+        root / "gap_content.py",
+        root / "findings.py",
         root / "app.py",
+        root / "legacy_app.py",
     ]:
         text = path.read_text(encoding="utf-8")
         assert "<style" not in text and "unsafe_allow_html" not in text, path.name

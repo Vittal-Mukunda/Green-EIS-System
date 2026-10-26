@@ -719,3 +719,23 @@
 .stApp [data-testid="stTooltipIcon"] { color: var(--faint); }
 
 /* nothing is announced by colour alone: tables and chips always carry text, and icon glyphs name the status */
+
+/* research pages: citations, sub-lines, labelled blocks */
+.eis-cite { color: var(--info); text-decoration: none; border-bottom: 1px dotted var(--info); }
+.eis-cite:hover { color: #1b4a75; border-bottom-style: solid; }
+.eis-sub { color: var(--muted); font-size: var(--fs-sm); font-weight: 400; }
+.eis-qa { margin: 0 0 var(--s-3) 0; }
+.eis-qa .q { font-weight: 640; color: var(--text); margin-bottom: 2px; }
+.eis-qa .a { color: var(--text-2); line-height: 1.55; }
+.eis-gaphead { display: flex; align-items: center; gap: var(--s-3); flex-wrap: wrap; margin-bottom: var(--s-2); }
+.eis-gaphead h3 { margin: 0; font-size: var(--fs-lg); }
+.eis-ref { padding: var(--s-3) 0; border-bottom: 1px solid var(--border); }
+.eis-ref .cite { color: var(--text); line-height: 1.5; }
+.eis-ref .meta { margin-top: 4px; display: flex; gap: var(--s-2); flex-wrap: wrap; align-items: center; }
+.eis-ref .note { color: var(--muted); font-size: var(--fs-sm); margin-top: 4px; }
+/* a wide table with many text columns: smaller type, no sticky first column */
+.eis-table.compact th, .eis-table.compact td { font-size: 12px; padding: 8px 10px; vertical-align: top; }
+.eis-table.compact td.firstcol, .eis-table.compact th.firstcol { position: static; min-width: 0; }
+.eis-table.compact th { white-space: normal; line-height: 1.25; }
+.eis-table.compact .eis-badge { white-space: normal; text-align: left; }
+.eis-table.compact td:nth-child(6) { min-width: 190px; }

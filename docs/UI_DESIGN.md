@@ -5,6 +5,11 @@ and the reusable components were carried over from the previous project (archive
 the pages, the vocabulary and the data behind them are new. It is a presentation layer: no calculation
 lives here.
 
+> **2026-10-26 redesign.** The navigation is now Study, one analysis page per research gap, Overall
+> Findings and References (section 8). Sections 1 to 7 describe the design system and the earlier unit tool,
+> which keeps running from `dashboard/legacy_app.py`; the components, tokens and rules they describe apply
+> to every page.
+
 ## 1. What the interface is for
 
 A small unit's manager enters a month of data and sees, with as little effort as possible:
@@ -122,12 +127,37 @@ Streamlit's own control.
 - Entered data live in the browser session only. A refresh loses them; the Data entry page offers a CSV
   download and upload to keep and restore them.
 
-## 6. Public pages (added 2026-10-26)
+## 6. Public pages (added 2026-10-26; superseded the same day by section 8)
 
-`pages_public.py` holds Home, Research gaps, National picture, Trust in numbers and Data and sources, in
-a first group "Overview" (Data and sources sits in Reference). They explain real results in plain words:
+`sections.py` (formerly `pages_public.py`) keeps the charts of the pages Home, Research gaps, National picture, Trust in numbers and Data and sources, now drawn on the Gap 1 to 3 pages. Home, Research gaps and Data and sources were removed: the Study page, Overall Findings and References replace them. They explain real results in plain words:
 every figure is read from `outputs/study_asi_2023-24*.json` through `greeneis.study.headline`, from
 `src/greeneis/data/national.csv`, or from the CSTEP recomputation in `greeneis.validation`; none is typed
 into a page. A result file marked synthetic is never shown there. Each chart is followed by `in_plain_words`
 (`components/plain.py`): a reading in one or two sentences and a line on how to read the chart. The app opens
 on Home and the unit tool starts empty (`state.init_state`); `state.load_example` loads the labelled example.
+
+## 8. Research navigation (added 2026-10-26)
+
+The sidebar is generated from the gap registry `src/greeneis/gaps.py`: Study, one page per gap (so the page
+count is the number of gaps plus three), Overall Findings, References. A gap's number, title, sources and
+status are written once there; the Study page, the analysis pages, the sidebar and the findings matrix all
+read them, and `tests/test_research_pages.py` checks they agree. Sources are keys into
+`src/greeneis/references.py`, which also builds the References page.
+
+```
+dashboard/
+  app.py                  entry for the research navigation; legacy_app.py runs the earlier unit tool
+  vocab.py                PAGES from the registry; LEGACY_PAGES (not in the navigation)
+  gap_data.py             loads the result files (never a synthetic one) and the ASI aggregates
+  findings.py             one-line summaries per gap, computed once, used by every page
+  gap_content.py          what is specific to each gap: data and scope, method, results, findings
+  pages_gap.py            the Study page and the shared eight-part analysis page (A to H)
+  pages_findings.py       Overall Findings            pages_bibliography.py  References
+  sections.py             charts reused from the earlier National picture and Trust in numbers pages
+  worked_example.py       the reference document's invented example, for labelled method checks only
+  components/citations.py citation links to the References page; components/research.py Q and A blocks
+```
+
+Rules added: a page change also scrolls to the top (`components/navigation.py`); a figure on a research
+page is read from a result file or computed from the factor library, never typed; a gap whose question the
+data cannot answer says so and names the missing data instead of showing a result.

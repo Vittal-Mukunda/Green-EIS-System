@@ -1,13 +1,18 @@
 """GreenEIS dashboard. Run with `streamlit run dashboard/app.py`.
 
-Each page has its own address: `?page=hotspots`. The pages call components and the `greeneis` package;
-the numbers are never computed here. Nothing is stored on disk: the data a person enters live in the
-browser session, and the Data entry page offers a CSV to keep them.
+The navigation is the research story: Study, one analysis page per research gap, Overall Findings,
+References. The gaps come from `greeneis.gaps`, so the sidebar, the Study page and the findings table are
+generated from one list. Each page has its own address: `?page=gap-1-firm-level-data`.
+
+Pages read the result files in `outputs/` and the factor library; nothing is computed here and nothing is
+entered by the visitor. The earlier unit tool (data entry, summary, hotspots, what-if, report) is not in
+this navigation; it still runs from `dashboard/legacy_app.py`.
 """
 
 from __future__ import annotations
 
 import sys
+from functools import partial
 from pathlib import Path
 
 # A host that only runs `pip install -r requirements.txt` has not installed this project, so put `src/`
@@ -16,15 +21,17 @@ for _path in (Path(__file__).resolve().parents[1] / "src", Path(__file__).resolv
     if _path.is_dir() and str(_path) not in sys.path:
         sys.path.insert(0, str(_path))
 
-import pages_public  # noqa: E402
-import pages_reference  # noqa: E402
-import pages_study  # noqa: E402
-import pages_unit  # noqa: E402
-import state  # noqa: E402
+import gap_data  # noqa: E402
+import pages_bibliography  # noqa: E402
+import pages_findings  # noqa: E402
+import pages_gap  # noqa: E402
 import streamlit as st  # noqa: E402
 import vocab  # noqa: E402
 from components.alerts import ESTIMATE_NOTE  # noqa: E402
 from components.app_shell import inject_styles, render_shell  # noqa: E402
+from components.navigation import scroll_to_top_if_requested  # noqa: E402
+
+from greeneis import gaps  # noqa: E402
 
 st.set_page_config(
     page_title="GreenEIS",
@@ -35,50 +42,29 @@ st.set_page_config(
 
 PAGES = list(vocab.PAGES)
 PAGE_FUNCTIONS = {
-    "Home": pages_public.home,
-    "Research gaps": pages_public.research_gaps,
-    "National picture": pages_public.national_picture,
-    "Trust in numbers": pages_public.trust_in_numbers,
-    "Data and sources": pages_public.data_and_sources,
-    "Data entry": pages_unit.data_entry,
-    "Summary": pages_unit.summary,
-    "Hotspots": pages_unit.hotspots,
-    "What-if": pages_unit.what_if,
-    "Report": pages_unit.report,
-    "Study results": pages_study.study_results,
-    "Factors and method": pages_reference.factors_and_method,
-    "About": pages_reference.about,
+    "Study": pages_gap.study,
+    **{g.nav_label: partial(pages_gap.analysis, g.number) for g in gaps.GAPS},
+    "Overall Findings": pages_findings.overall_findings,
+    "References": pages_bibliography.bibliography,
 }
+assert list(PAGE_FUNCTIONS) == PAGES, "every navigation page needs a function, in sidebar order"
 
-state.init_state()
-# A page's address picks the page on first load, so a link such as ?page=hotspots can be shared.
+# A page's address picks the page on first load, so a link such as ?page=overall-findings can be shared.
 if st.session_state.get("view") not in PAGES:
     slugs = {vocab.slug(v): v for v in PAGES}
     st.session_state["view"] = slugs.get(st.query_params.get("page", ""), PAGES[0])
 
 inject_styles(PAGES)
-ctx = state.build_context()
 
-
-def _scope_control() -> None:
-    """Choose one period or all of them; shown only when more than one period has been entered."""
-    if len(st.session_state["periods"]) > 1:
-        st.radio("Show", ["This period", "All periods entered"], key="scope")
-
-
-unit_block = {
-    "name": ctx.unit_name,
-    "period": ctx.period,
-    "activities": len(ctx.activities),
-    "is_example": ctx.is_example,
-}
+head = gap_data.result(gap_data.MAIN_FILE)
 status = (
-    ("Illustrative example, not real data", "warn")
-    if ctx.is_example
-    else (f"{ctx.unit_name} · {ctx.period} · {len(ctx.activities)} activities", "")
+    (f"Real data: ASI 2023-24 · {head.factories:,} small factories · aggregates only", "")
+    if head
+    else ("Real results file not available", "warn")
 )
-page = render_shell(PAGES, unit_block, status[0], status[1], extra=_scope_control)
+page = render_shell(PAGES, None, status[0], status[1])
 st.query_params["page"] = vocab.slug(page)
 
-PAGE_FUNCTIONS[page](ctx)
+PAGE_FUNCTIONS[page]()
 st.caption(ESTIMATE_NOTE)
+scroll_to_top_if_requested()

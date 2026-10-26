@@ -17,7 +17,7 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from decimal import Decimal
 
-from .engine import ELECTRICITY_ITEM, Activity, Footprint, calculate
+from .engine import DEFAULT_GRID_ID, ELECTRICITY_ITEM, GWP_AR5, Activity, Footprint, calculate
 from .factors import FactorLibrary, default_library
 
 HUNDRED = Decimal(100)
@@ -231,3 +231,33 @@ def abatement_cost(
     if annual_tco2e_avoided <= 0:
         raise ScenarioError("no emissions are avoided, so an abatement cost is not defined")
     return (annualised_investment_inr - annual_saving_inr) / annual_tco2e_avoided
+
+
+_GJ_PER_MWH = Decimal("3.6")
+
+
+def kg_co2e_per_gj(
+    item_id: str, library: FactorLibrary | None = None, gwp: dict[str, Decimal] | None = None
+) -> Decimal:
+    """Emissions per gigajoule of energy delivered, kg CO2e/GJ: a fuel's three gases weighted by the
+    warming potentials, or the average grid factor for electricity (CO2 only, as the source gives it).
+    This is energy at the point of use before any equipment efficiency, so it is not a like-for-like
+    comparison of routes; `electrification_breakeven` adds the efficiency step."""
+    library = library or default_library()
+    gwp = gwp or GWP_AR5
+    if item_id == ELECTRICITY_ITEM:
+        return library.grid(DEFAULT_GRID_ID).ef_t_co2_per_mwh * Decimal(1000) / _GJ_PER_MWH
+    f = library.fuel(item_id)
+    kg_per_tj = (
+        f.ef_co2_kg_per_tj + gwp["ch4"] * f.ef_ch4_kg_per_tj + gwp["n2o"] * f.ef_n2o_kg_per_tj
+    )
+    return kg_per_tj / Decimal(1000)
+
+
+def electrification_breakeven(
+    fuel_id: str, library: FactorLibrary | None = None, gwp: dict[str, Decimal] | None = None
+) -> Decimal:
+    """The largest fraction of the fuel's energy that an electric route may use to do the same useful
+    work and still not emit more on the current average grid: fuel intensity divided by grid intensity.
+    Below this fraction the electric route emits less. It says nothing about cost or capital."""
+    return kg_co2e_per_gj(fuel_id, library, gwp) / kg_co2e_per_gj(ELECTRICITY_ITEM, library, gwp)

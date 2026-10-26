@@ -60,7 +60,7 @@ def render_topbar(pages: list[str], status_text: str, status_tone: str = "") -> 
         with state:
             render(status_html(status_text, status_tone))
         with help_col:
-            target = next((p for p in ("About", "Factors and method") if p in pages), None)
+            target = next((p for p in ("Study", "About", "Factors and method") if p in pages), None)
             if target:
                 with st.container(key="eis-help"):
                     st.button(

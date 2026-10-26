@@ -28,7 +28,7 @@ def inject_styles(pages: list[str]) -> None:
 
 def render_shell(
     pages: list[str],
-    unit: dict,
+    unit: dict | None,
     status_text: str,
     status_tone: str = "",
     notice: str | None = None,
