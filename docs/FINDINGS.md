@@ -59,6 +59,14 @@ in the main run and in both declared sensitivity runs. Full table and caveats:
 5. **H5 (fix the biggest hotspot first) rests on 67 factories** and its interval nearly touches zero. Treat
    as weak.
 
+### Exploratory textile cut (declared before running)
+
+On NIC 13 factories only (1,105 factories, 31 states) H1-H3 are supported again with the same ordering
+(median error Estimated 6% vs Default 79%). H4 is **not supported** (100 factories; the lead-gap association
+cannot be shown) and H5 has **insufficient data** (5 factories). So ASI settles the proxy-error question
+for textiles but cannot test hotspot stability or the priority rule there; that needs the unit data in
+[DATA_TO_COLLECT.md](DATA_TO_COLLECT.md) section C. Detail in [RESULTS_ASI_2023-24.md](RESULTS_ASI_2023-24.md).
+
 ## 5. What it does not show
 
 The profiles are simulated assumptions about what a unit records, applied by us, not by real owners; the

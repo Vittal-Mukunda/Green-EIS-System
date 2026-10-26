@@ -41,6 +41,25 @@ the truth / top hotspot kept): `bills_only` 3.4% / 77% / 96%; `invoices_main` 0%
 6.7% / 69% / 92%; `minimal` 69% / 29% / 83%. The nominal "90%" interval covered the truth only 77% of the time
 under `bills_only` and 69% under `random_mix`: **the placeholder ranges are too narrow where it matters.**
 
+## Exploratory textile cut (declared in RESEARCH_DESIGN §10 on 2026-10-26 before it was run)
+
+Same run, analysed on **NIC 13 (textiles) factories only**; proxies still fitted on all sectors. File:
+`study_asi_2023-24_explor_nic13.json`. Exploratory, not confirmatory. **1,105 factories, 1,210 item records, 31
+states.**
+
+| H | Textile cut | Reading |
+|---|---|---|
+| H1 | supported; median error Estimated 6% vs Default 79%, difference 0.72 (CI 0.66-0.81) | same ordering as the main run |
+| H2 | supported; Default 90th percentile 967% vs placeholder 50%; Estimated 26% vs 25% (inside the band); pooled coverage 76% | Default range far too narrow again |
+| H3 | supported; pooled rho -0.975, within `random_mix` -0.933 | same structural caveat as the main run |
+| H4 | **not supported**, on **100 factories in 12 states**: top hotspot kept 98% (CI 95-100%) but no association with the lead gap (thin lead 100%, thick 98%) | the robustness part holds; the "less so when the lead is thin" part cannot be tested on 100 factories |
+| H5 | **insufficient data** (5 factories, 3 states) | ASI cannot test the priority rule for textiles |
+
+Per-fuel Estimated median error in textiles: electricity 6%, LPG 18%, coal 22% (40 coal records only).
+**What it means:** the error ordering carries over to textiles, but ASI holds too few multi-fuel textile
+factories (100) and no liquid fuels, so the hotspot and priority hypotheses cannot be tested here for the
+recommended sector. That is the specific reason real unit data (DATA_TO_COLLECT.md section C) are needed.
+
 ## What this supports, in plain words
 
 1. Estimating a fuel quantity from spend and a typical local price works well for electricity, moderately for

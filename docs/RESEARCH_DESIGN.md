@@ -137,3 +137,13 @@ Process emissions, Scope 3, LCA, real-time sensors, certification, bill/invoice 
   persons. Whatever the runs show is reported, including failures. Known limits: the reference quantity is
   reported, not metered; liquid fuels are not usable (the schedule gives no unit), so a factory has at most
   three items and H4 and H5 cover only factories with electricity plus coal or gas.
+- **2026-10-26 10:10 IST, sector decision and one declared exploratory cut (written before the cut was run).**
+  (1) For **new unit-level collection** the primary sector is textile wet processing (NIC 13), with brick
+  kilns only as the motivating case (reasons and criteria in `docs/DATA_TO_COLLECT.md`). This does not
+  change the ASI main run, which used all sectors and stays the confirmatory result. (2) One exploratory
+  cut of the ASI 2023-24 data is declared: the same run restricted to **NIC 13 factories at the analysis
+  stage only**. Case table, proxies (price medians and sector intensities, fitted on all sectors), seed
+  20261025, 1000 bootstrap draws, 50-person limit, gas as LPG, profiles, thresholds and Holm correction are
+  identical to the main run. It is reported as exploratory whatever it shows, including "insufficient data"
+  (fewer than 10 clusters) and verdicts resting on few rows. No other sector cut is declared. The result may
+  not be used to change any threshold, proxy rule or profile.

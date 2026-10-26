@@ -138,3 +138,15 @@ def test_descriptives_break_the_proxy_errors_down_by_item():
     pooled = analysis.descriptives(data)["item_errors"]["eps_estimated"]["median_abs"]
     meds = [c["eps_estimated"]["median_abs"] for c in by_item.values()]
     assert min(meds) <= pooled <= max(meds)
+
+
+def test_only_sector_keeps_that_sectors_units_and_leaves_the_default_run_alone():
+    frame = synthetic.generate(400, 5)
+    sector = frame["sector"].iloc[0]
+    expected = frame.loc[frame["sector"] == sector, "unit_id"].nunique()
+    full = run_study(frame, "x", "ref", seed=5, n_boot=20)
+    cut = run_study(frame, "x", "ref", seed=5, n_boot=20, only_sector=sector)
+    assert cut["provenance"]["only_sector"] == sector
+    assert cut["provenance"]["units"] == expected
+    assert full["provenance"]["only_sector"] is None
+    assert full["provenance"]["units"] == frame["unit_id"].nunique()

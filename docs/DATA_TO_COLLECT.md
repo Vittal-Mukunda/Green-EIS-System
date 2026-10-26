@@ -21,6 +21,11 @@ Why textile processing, by the criteria a reviewer will apply:
 | Existing public anchor for cross-checking | BEE/SAMEEKSHA manuals for Pali (24 audits) and Surat (60 detailed audits) exist, though unit annexures were not found | BEE manuals (Varanasi, Ludhiana) | small |
 | Already in the ASI calibration set | yes (NIC 13) | yes (NIC 23) | yes (NIC 10) |
 
+**Evidence from our own data (exploratory textile cut, 2026-10-26):** among 1,105 small NIC 13 factories in
+ASI, only 100 have two or more fuel items and 5 allow the priority test, and no liquid fuel is usable. The
+proxy-error result carries over to textiles, but the hotspot hypotheses (H4, H5) cannot be tested there
+without unit data. This is why section C below is the main collection.
+
 Brick kilns are kept as the **motivating case in the introduction** (the disagreement is the clearest
 evidence for the gap) and as an optional contrast, not as the main sample. One sector keeps the sample
 homogeneous; the paper must still say its results hold only for the cases studied.
