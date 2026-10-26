@@ -19,4 +19,6 @@ data/reference/
 
 # notebooks
 .ipynb_checkpoints/
-outputs/
+outputs/*
+# aggregate results of the real-data run (no factory-level rows); the Study results page reads them
+!outputs/study_asi_2023-24*.json

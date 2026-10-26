@@ -95,8 +95,9 @@ src/greeneis/
                    synthetic.py, run.py (CLI: --source synthetic | csv | asi)
 dashboard/         the interface (see docs/UI_DESIGN.md)
 tests/             130+ tests; hand-worked literals; see the docstring at the top of each file
-docs/              RESEARCH_DESIGN, RESULTS_ASI_2023-24, PHASE1_SPEC, DATA_INVENTORY, ASI_OPTION,
-                   STUDY_RUNBOOK, VERIFY, UI_DESIGN
+docs/              FINDINGS, DATA_TO_COLLECT, RESEARCH_DESIGN, RESULTS_ASI_2023-24, PHASE1_SPEC,
+                   DATA_INVENTORY, ASI_OPTION, STUDY_RUNBOOK, VERIFY, UI_DESIGN
+outputs/           gitignored except the three aggregate ASI 2023-24 result files (no factory rows)
 C:/Users/vitta/greeneis-data/asi/ASI24m.TXT   the 610 MB ASI file, kept OUTSIDE the OneDrive project; terms unread
 ```
 
@@ -123,4 +124,6 @@ C:/Users/vitta/greeneis-data/asi/ASI24m.TXT   the 610 MB ASI file, kept OUTSIDE 
 | Study harness H1-H5 | built and tested; **run on real data (ASI 2023-24) on 2026-10-25**, exactly as pre-specified: all five supported, with caveats (H5 rests on 67 factories, H3 is largely structural, pooled results are 90% electricity); see `docs/RESULTS_ASI_2023-24.md` |
 | Dashboard | eight pages on the kept design system; verified in the browser and by AppTest |
 | Data gate (1a) | **met for one year**: the ASI 2023-24 file is public and was downloaded (V-18: terms still unread). BEE unit audits remain unavailable (V-08); the Wayback copies are rate-limited (V-36) |
+| Sector and data plan | decided 2026-10-26: primary sector textile wet processing (NIC 13), bricks as motivating case; list of data to collect in `docs/DATA_TO_COLLECT.md`; consolidated findings in `docs/FINDINGS.md` |
+| Repository | `main` replaced by the GreenEIS tree on 2026-10-26 (old LLM Gauge files removed from the tree; kept as tag `archive/llm-gauge`, pushed) |
 | Real-data follow-up | needs the owner: teacher's view on ASI, the portal's terms, free login for 2022-23 and 2021-22 (held-out years), per-fuel calibration (`docs/STUDY_RUNBOOK.md` section A) |

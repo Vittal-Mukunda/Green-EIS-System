@@ -1,0 +1,284 @@
+{
+  "tests": {
+    "H1": {
+      "name": "H1",
+      "statement": "Default inputs have larger realised error than Estimated inputs",
+      "estimate": {
+        "median_difference": 0.6462590262470711,
+        "ci95": [
+          0.6268944269078107,
+          0.6666850949438591
+        ],
+        "median_abs_error_estimated": 0.061557378022848594,
+        "median_abs_error_default": 0.7401589025603501
+      },
+      "falsified_p": 0.000999000999000999,
+      "n_clusters": 35,
+      "n_rows": 34724,
+      "note": "",
+      "adjusted_p": 0.004995004995004995,
+      "verdict": "supported"
+    },
+    "H2": {
+      "name": "H2",
+      "statement": "The placeholder uncertainty ranges are miscalibrated",
+      "estimate": {
+        "q90_abs_error_estimated": 0.22022165267184596,
+        "q90_abs_error_default": 6.582065055109489,
+        "placeholder_u": {
+          "estimated": 0.25,
+          "default": 0.5
+        },
+        "pooled_coverage": 0.7839845610975187,
+        "coverage_by_profile": {
+          "bills_only": 0.9721926169944772,
+          "invoices_main": 0.9996772319411271,
+          "minimal": 0.33329024752795194,
+          "random_mix": 0.8303513757912414
+        },
+        "ci95_q90_estimated": [
+          0.20429991180778942,
+          0.23595495513816653
+        ],
+        "ci95_q90_default": [
+          5.066109634954277,
+          10.22479592918248
+        ],
+        "ci95_coverage": [
+          0.7800923177326103,
+          0.7873642317888525
+        ]
+      },
+      "falsified_p": 0.000999000999000999,
+      "n_clusters": 35,
+      "n_rows": 34724,
+      "note": "The nominal interval is read as a 90% interval (design decision pending).",
+      "adjusted_p": 0.004995004995004995,
+      "verdict": "supported"
+    },
+    "H3": {
+      "name": "H3",
+      "statement": "The trust index tracks realised total error",
+      "estimate": {
+        "spearman_rho_pooled": -0.9705765832445471,
+        "ci95_pooled": [
+          -0.9720887145637365,
+          -0.9685055980926871
+        ],
+        "spearman_rho_within_random_mix": -0.9194622058483748,
+        "ci95_within_random_mix": [
+          -0.9254579341548149,
+          -0.9121702239437631
+        ],
+        "naive_default_share_rho": 0.8586038301292032
+      },
+      "falsified_p": 0.000999000999000999,
+      "n_clusters": 36,
+      "n_rows": 123855,
+      "note": "Both the pooled and the within-random_mix correlations must be negative. naive_default_share_rho (share of emissions from Default inputs vs error) is descriptive.",
+      "adjusted_p": 0.004995004995004995,
+      "verdict": "supported"
+    },
+    "H4": {
+      "name": "H4",
+      "statement": "The top hotspot is usually robust, but less so when the lead is thin",
+      "estimate": {
+        "p_top1_kept": 0.9663409337676439,
+        "ci95": [
+          0.9566043868717682,
+          0.9760289504574906
+        ],
+        "p_kept_thin_lead": 0.5741935483870968,
+        "p_kept_thick_lead": 0.9835647492207424,
+        "thin_lead_below": 0.1,
+        "floor": 0.8
+      },
+      "falsified_p": 0.000999000999000999,
+      "n_clusters": 31,
+      "n_rows": 3684,
+      "note": "Units with a single energy item are excluded (the top hotspot is trivially kept).",
+      "adjusted_p": 0.004995004995004995,
+      "verdict": "supported"
+    },
+    "H5": {
+      "name": "H5",
+      "statement": "Upgrading the largest hotspot's input first cuts total error more than the alternatives",
+      "estimate": {
+        "margin_over_best_alternative": 0.050478329028697394,
+        "ci95": [
+          0.011629377890130061,
+          0.06739738924395938
+        ],
+        "mean_error_reduction": {
+          "largest_first": 0.1331089981953924,
+          "lowest_trust_first": 0.08263066916669501,
+          "random": 0.07190585030157223
+        }
+      },
+      "falsified_p": 0.000999000999000999,
+      "n_clusters": 17,
+      "n_rows": 98,
+      "note": "Reduction in |relative total error| after upgrading one input to Measured; positive is better. Base profile bills_only.",
+      "adjusted_p": 0.004995004995004995,
+      "verdict": "supported"
+    }
+  },
+  "descriptives": {
+    "excluded": {
+      "minimal: a needed proxy could not be formed": 36,
+      "random_mix: a needed proxy could not be formed": 18,
+      "bills_only: a needed proxy could not be formed": 19
+    },
+    "by_profile": {
+      "bills_only": {
+        "units": 30963,
+        "mean_abs_total_error": 0.013072087708342632,
+        "median_abs_total_error": 0.0,
+        "mean_trust_index": 0.9760897398244155,
+        "coverage": 0.9721926169944772,
+        "top1_kept": 0.9663409337676439,
+        "mean_kendall_tau": 0.9332247557003257
+      },
+      "invoices_main": {
+        "units": 30982,
+        "mean_abs_total_error": 7.818366674218348e-05,
+        "median_abs_total_error": 0.0,
+        "mean_trust_index": 0.9998882634360171,
+        "coverage": 0.9996772319411271,
+        "top1_kept": 1.0,
+        "mean_kendall_tau": 0.9989197947610046
+      },
+      "minimal": {
+        "units": 30946,
+        "mean_abs_total_error": 19.387651577850235,
+        "median_abs_total_error": 0.7094626994458625,
+        "mean_trust_index": 0.29999999999999993,
+        "coverage": 0.33329024752795194,
+        "top1_kept": 0.8435114503816794,
+        "mean_kendall_tau": 0.697928026172301
+      },
+      "random_mix": {
+        "units": 30964,
+        "mean_abs_total_error": 0.795705233558325,
+        "median_abs_total_error": 0.02666666540194345,
+        "mean_trust_index": 0.7003306351061984,
+        "coverage": 0.8303513757912414,
+        "top1_kept": 0.930257801899593,
+        "mean_kendall_tau": 0.8630483943916779
+      }
+    },
+    "item_errors_by_item": {
+      "coal": {
+        "eps_estimated": {
+          "n": 1772,
+          "median_abs": 0.13589905156464552,
+          "q90_abs": 0.5186440083932182
+        },
+        "eps_default": {
+          "n": 1755,
+          "median_abs": 0.5637730090718885,
+          "q90_abs": 3.9838900842802425
+        }
+      },
+      "grid_electricity": {
+        "eps_estimated": {
+          "n": 30916,
+          "median_abs": 0.05617976338266498,
+          "q90_abs": 0.1797753328488268
+        },
+        "eps_default": {
+          "n": 30919,
+          "median_abs": 0.7368105590218518,
+          "q90_abs": 6.31897174541245
+        }
+      },
+      "lpg": {
+        "eps_estimated": {
+          "n": 2072,
+          "median_abs": 0.18650978169178106,
+          "q90_abs": 0.5723687574633086
+        },
+        "eps_default": {
+          "n": 2072,
+          "median_abs": 0.881428817597397,
+          "q90_abs": 15.416254023087658
+        }
+      }
+    },
+    "item_errors": {
+      "eps_estimated": {
+        "n": 34760,
+        "median_abs": 0.06158359871870443,
+        "q90_abs": 0.22092662870443472,
+        "mean_signed": 0.015138508927691799
+      },
+      "eps_default": {
+        "n": 34746,
+        "median_abs": 0.740113559174455,
+        "q90_abs": 6.586676541625046,
+        "mean_signed": 20.135389267317716
+      }
+    }
+  },
+  "settings": {
+    "n_boot": 1000,
+    "seed": 20261025,
+    "alpha": 0.05,
+    "min_clusters": 10,
+    "min_rows": 30,
+    "coverage_band": [
+      0.8,
+      0.95
+    ],
+    "calibration_factor": 1.5,
+    "top1_floor": 0.8
+  },
+  "provenance": {
+    "source": "ASI 2023-24, gas as lpg, up to 100 persons",
+    "synthetic": false,
+    "banner": "",
+    "reference_quantity": "reported by the factory in the ASI return (purchase records), not metered",
+    "created_utc": "2026-10-25T18:23:36Z",
+    "rows_dropped": {},
+    "data_log": {
+      "round": "2023-24",
+      "max_employees": 100,
+      "gas_item": "lpg",
+      "factories in file": 68641,
+      "open factories": 57274,
+      "open with persons recorded": 57274,
+      "small (persons <= max_employees)": 31396,
+      "dropped: industry code unusable": 0,
+      "dropped: unit code not convertible": 0,
+      "item records": 34782,
+      "factories with at least one item": 30982,
+      "records: grid_electricity": 30919,
+      "records: lpg": 2082,
+      "records: coal": 1781,
+      "factories with two or more items": 3703,
+      "clusters (states)": 36
+    },
+    "units": 30982,
+    "rows": 34782,
+    "clusters": 36,
+    "trust_config": {
+      "status": "placeholder",
+      "scores": {
+        "measured": "1.0",
+        "estimated": "0.6",
+        "default": "0.3"
+      },
+      "uncertainty": {
+        "measured": "0.05",
+        "estimated": "0.25",
+        "default": "0.50"
+      }
+    },
+    "profiles": [
+      "bills_only",
+      "minimal",
+      "invoices_main",
+      "random_mix"
+    ]
+  }
+}

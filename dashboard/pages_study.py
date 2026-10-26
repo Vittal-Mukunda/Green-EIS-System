@@ -51,7 +51,10 @@ def study_results(ctx: state.Context) -> None:
         read="'Supported' means the condition for proving the hypothesis wrong was rejected after correcting for "
         "five tests. 'Not supported' is not the same as refuted. 'Insufficient data' means too few clusters or rows.",
     )
-    files = sorted(OUTPUTS.glob("study*.json"), key=lambda f: f.stat().st_mtime, reverse=True)
+    # Main runs first (newest first), sensitivity runs after them.
+    files = sorted(
+        OUTPUTS.glob("study*.json"), key=lambda f: ("_sens_" in f.name, -f.stat().st_mtime)
+    )
     if not files:
         empty_state(
             "No study result yet",

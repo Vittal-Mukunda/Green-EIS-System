@@ -25,6 +25,25 @@ ASI terms of use are unread; calibration is untested on a second year (see
 [docs/DATA_INVENTORY.md](docs/DATA_INVENTORY.md)).
 The previous project is archived as the git tag `archive/llm-gauge`.
 
+## Where to read
+
+| Document | What it is |
+|---|---|
+| [docs/FINDINGS.md](docs/FINDINGS.md) | everything established so far, one page |
+| [docs/DATA_TO_COLLECT.md](docs/DATA_TO_COLLECT.md) | the data still needed, and the sector chosen (textile wet processing) |
+| [docs/RESEARCH_DESIGN.md](docs/RESEARCH_DESIGN.md) | question, hypotheses H1-H5, threats, change log |
+| [docs/RESULTS_ASI_2023-24.md](docs/RESULTS_ASI_2023-24.md) | first real-data results and their caveats |
+| [docs/DATA_INVENTORY.md](docs/DATA_INVENTORY.md), [docs/ASI_OPTION.md](docs/ASI_OPTION.md) | what data exist and how ASI is used |
+| [docs/STUDY_RUNBOOK.md](docs/STUDY_RUNBOOK.md), [docs/VERIFY.md](docs/VERIFY.md) | owner's steps; unverified-items register |
+| [docs/UI_DESIGN.md](docs/UI_DESIGN.md), [docs/PHASE1_SPEC.md](docs/PHASE1_SPEC.md) | interface and engine specification |
+
+## Host it (Streamlit Community Cloud)
+
+Sign in at share.streamlit.io with GitHub, choose **Create app**, repository
+`Vittal-Mukunda/Green-EIS-System`, branch `main`, main file `dashboard/app.py`, Python 3.12. The app needs
+only `requirements.txt`. The Study results page shows the aggregate ASI 2023-24 results in `outputs/`
+(factory-level rows are never committed).
+
 ## Run (Windows, PowerShell)
 
 The virtualenv lives outside OneDrive.
