@@ -69,12 +69,21 @@ def data_entry(ctx: state.Context) -> None:
     ss = st.session_state
     page_header(
         "Data entry",
-        "One period of a unit's energy, fuel and cost data. Each line says how well that number is known.",
+        "One period of a unit's energy, fuel and cost data. Each line says how well that number is known. "
+        "(Research gap 1: no firm-level data.)",
         read="Pick the item, enter the quantity in the unit on your bill or register, and say whether the "
         "number is Measured, Estimated or Default. A line you are unsure about should be Estimated or Default.",
     )
     if ctx.is_example:
         callout("info", "Example data.", EXAMPLE_NOTE)
+    elif not ctx.has_data and not ctx.errors:
+        callout(
+            "info",
+            "Start with one bill.",
+            "Add a row at the bottom of the table: pick electricity or a fuel, type the quantity and unit "
+            "from your bill, and say whether it is Measured, Estimated or Default. Nothing is pre-filled "
+            "and nothing leaves your browser.",
+        )
 
     left, mid, right = st.columns([2, 2, 2])
     left.text_input("Unit name", key="unit_name")
@@ -168,15 +177,14 @@ def data_entry(ctx: state.Context) -> None:
             callout("danger", "Upload failed.", error)
         else:
             st.rerun()
-    if c3.button("Start with a blank table", key="blank_table"):
+    if c3.button("Clear and start again", key="blank_table"):
         ss["bases"], ss["periods"], ss["sales"], ss["scenarios"] = {}, {}, {}, []
-        state.replace_period("Period 1", state.empty_frame())
-        ss["period"], ss["unit_name"] = "Period 1", ""
+        state.replace_period(state.BLANK_PERIOD, state.empty_frame())
+        ss["period"], ss["unit_name"] = state.BLANK_PERIOD, ""
         st.rerun()
-    if st.button("Reload the illustrative example", key="reload_example"):
-        ss["bases"], ss["periods"], ss["sales"], ss["scenarios"] = {}, {}, {}, []
-        state.replace_period(state.EXAMPLE_PERIOD, state.example_frame())
-        ss["period"], ss["unit_name"] = state.EXAMPLE_PERIOD, state.EXAMPLE_NAME
+    st.caption("Want to see the pages with numbers on them before entering your own?")
+    if st.button("Load a labelled test example (not a real unit)", key="reload_example"):
+        state.load_example()
         st.rerun()
 
 
@@ -184,7 +192,8 @@ def data_entry(ctx: state.Context) -> None:
 def summary(ctx: state.Context) -> None:
     page_header(
         "Summary",
-        "Total emissions for the chosen period, how far to believe them, and where they come from.",
+        "Total emissions for the chosen period, how far to believe them, and where they come from. "
+        "(Research gap 2: unquantified uncertainty.)",
         read="The trust index runs from 0 to 1: the share of emissions backed by measured data, with "
         "estimated and default data counting for less. The range is an indicative band, not a measured error.",
     )
@@ -272,7 +281,8 @@ def summary(ctx: state.Context) -> None:
 def hotspots(ctx: state.Context) -> None:
     page_header(
         "Hotspots",
-        "Which activities cause most of the emissions, and what each costs in rupees and in emissions.",
+        "Which activities cause most of the emissions, and what each costs in rupees and in emissions. "
+        "(Research gaps 3 and 4: what to fix first, and the cost link.)",
         compared="Activities within this unit, largest first. Not compared with other units.",
         read="The few activities up to the 80% line are the vital few. A hotspot is a priority for attention, "
         "not a verdict on how efficient the unit is.",
@@ -427,7 +437,8 @@ def _scenario_form(ctx: state.Context) -> None:
 def what_if(ctx: state.Context) -> None:
     page_header(
         "What-if",
-        "Try a change to this unit's inputs and see what it does to emissions and energy cost, before spending money.",
+        "Try a change to this unit's inputs and see what it does to emissions and energy cost, before spending money. "
+        "(Research gap 5: decarbonisation evidence that needs no audit.)",
         read="Scenarios are applied in the order listed, so overlapping changes are not double counted. "
         "Capital cost and electricity banking are not included.",
     )
@@ -535,7 +546,8 @@ def what_if(ctx: state.Context) -> None:
 def report(ctx: state.Context) -> None:
     page_header(
         "Report",
-        "A one-page summary to share with a buyer, a lender or your own team.",
+        "A one-page summary to share with a buyer, a lender or your own team. "
+        "(Research gap 7: buyer and lender requests for emission data.)",
         read="It always prints the method, the data classes and the trust index, so it cannot be used to overstate performance.",
     )
     _problems(ctx)

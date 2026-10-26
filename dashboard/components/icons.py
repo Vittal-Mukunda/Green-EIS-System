@@ -9,6 +9,11 @@ from .markup import esc
 
 # page -> icon, used by the sidebar and the home page
 PAGE_ICONS = {
+    "Home": "home",
+    "Research gaps": "flag",
+    "National picture": "public",
+    "Trust in numbers": "verified",
+    "Data and sources": "database",
     "Data entry": "edit_note",
     "Summary": "dashboard",
     "Hotspots": "whatshot",

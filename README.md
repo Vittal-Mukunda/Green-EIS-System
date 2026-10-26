@@ -18,7 +18,7 @@ Working notes, decisions and rules for Claude Code: [CLAUDE.md](CLAUDE.md).
 
 Built and tested: factor library, emission engine (checked against the reference document's worked example
 and CSTEP's published tables), trust score, hotspots and cost link, what-if scenarios, recommendations,
-one-page report, the study harness for the five hypotheses, and an eight-page dashboard. The study has been
+one-page report, the study harness for the five hypotheses, and a thirteen-page site (public overview pages that explain the real results in plain words, the unit tool, and reference pages). The study has been
 run once on real data (ASI 2023-24 factory returns): see [docs/RESULTS_ASI_2023-24.md](docs/RESULTS_ASI_2023-24.md)
 for what it does and does not show. **Not done:** the trust scores are still uncalibrated placeholders; the
 ASI terms of use are unread; calibration is untested on a second year (see
@@ -41,9 +41,11 @@ The previous project is archived as the git tag `archive/llm-gauge`.
 ## Host it (Streamlit Community Cloud)
 
 Sign in at share.streamlit.io with GitHub, choose **Create app**, repository
-`Vittal-Mukunda/Green-EIS-System`, branch `main`, main file `dashboard/app.py`, Python 3.12. The app needs
-only `requirements.txt`. The Study results page shows the aggregate ASI 2023-24 results in `outputs/`
-(factory-level rows are never committed).
+`Vittal-Mukunda/Green-EIS-System`, branch `main`, main file `streamlit_app.py` (it runs `dashboard/app.py`),
+Python 3.12. The app needs only `requirements.txt` (test and lint tools are in `requirements-dev.txt`). The
+public pages (Home, Research gaps, National picture, Trust in numbers, Data and sources) read the
+aggregate ASI 2023-24 results committed in `outputs/` and the sourced tables in `src/greeneis/data/`
+(factory-level rows are never committed). The repository must be readable by Streamlit Community Cloud.
 
 ## Run (Windows, PowerShell)
 
@@ -55,5 +57,6 @@ The virtualenv lives outside OneDrive.
 & $HOME\.venvs\eis-gauge\Scripts\python.exe -m greeneis.study.run --source synthetic --out outputs\study_synthetic.json
 ```
 
-The app opens with an illustrative factory from the reference document (not real data, labelled as such).
+The app opens on the Home page, and the unit tool starts empty: nothing is pre-filled. A labelled
+illustrative factory from the reference document (not real data) can be loaded from the Data entry page.
 The synthetic study run exercises the pipeline only; its results say nothing about the world.

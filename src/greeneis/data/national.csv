@@ -1,0 +1,7 @@
+id,label,value_low,value_high,unit,year,source,status,note
+cstep_informal_total,"Informal-sector fossil-fuel emissions, CSTEP estimate",110,110,MtCO2e,2015-16,"CSTEP 2018 (ref S1), executive summary",read_in_original,"Fuel-supply (dispatch) method. Excludes process emissions. Sum of CSTEP Tables 5 and 8 is 110.53."
+ceew_informal_total,"Informal-sector emissions from primary energy, CEEW estimate",105,105,MtCO2e,2015-16,"CEEW 2018 (ref S2)",read_in_original,"Demand-side method built from survey data. Excludes process emissions. The reference document states coal is more than 90% of this figure; not rechecked in the original."
+ceew_brick_coal,"Coal used by brick kilns, CEEW estimate",26,26,Mt coal,2015-16,"CEEW 2018 (ref S2)",read_in_original,"About 49% of CEEW's estimate of unorganised-sector coal. CEEW itself calls this far below other studies and attributes the gap to under-reported employment in the NSS 73rd round."
+greentech_brick_coal,"Coal used by brick kilns, Greentech estimate",35,35,Mt coal,2012,"Greentech 2012, as cited by CEEW 2018 (ref S2)",cited_by_original,"Not read in the original Greentech report."
+cpcb_brick_coal,"Coal used by brick kilns, CPCB estimate",35,40,Mt coal,2015,"CPCB 2015, as cited by CEEW 2018 (ref S2)",cited_by_original,"Not read in the original CPCB report."
+mnre_brick_coal,"Coal used by brick kilns, MNRE estimate",46,69.1,Mt coal,2013,"MNRE 2013, as cited by CEEW 2018 (ref S2)",cited_by_original,"Not read in the original MNRE report."

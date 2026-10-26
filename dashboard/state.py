@@ -35,6 +35,7 @@ EQUIPMENT = [
 ]
 GRID_NAME = "Grid electricity"
 
+BLANK_PERIOD = "Period 1"
 EXAMPLE_NAME = "Illustrative factory"
 EXAMPLE_PERIOD = "Example month"
 EXAMPLE_ROWS = [  # the reference document's worked example (section 7): invented, not a real unit
@@ -59,6 +60,14 @@ EXAMPLE_ROWS = [  # the reference document's worked example (section 7): invente
     ],
     ["Liquefied petroleum gas (LPG)", "LPG (heating)", 500.0, "kg", "Default", 50000.0, ""],
 ]
+
+
+def load_example() -> None:
+    """Replace the entered data with the labelled illustrative example (a test fixture, not a real unit)."""
+    ss = st.session_state
+    ss["bases"], ss["periods"], ss["sales"], ss["scenarios"] = {}, {}, {}, []
+    replace_period(EXAMPLE_PERIOD, example_frame())
+    ss["period"], ss["unit_name"] = EXAMPLE_PERIOD, EXAMPLE_NAME
 
 
 def item_names() -> dict[str, str]:
@@ -90,10 +99,10 @@ def init_state() -> None:
     editor's output back as its input loses or doubles edits); `periods` holds the current, edited
     tables that every page reads."""
     ss = st.session_state
-    ss.setdefault("unit_name", EXAMPLE_NAME)
-    ss.setdefault("bases", {EXAMPLE_PERIOD: example_frame()})
-    ss.setdefault("periods", {EXAMPLE_PERIOD: example_frame()})
-    ss.setdefault("period", EXAMPLE_PERIOD)
+    ss.setdefault("unit_name", "")
+    ss.setdefault("bases", {BLANK_PERIOD: empty_frame()})
+    ss.setdefault("periods", {BLANK_PERIOD: empty_frame()})
+    ss.setdefault("period", BLANK_PERIOD)
     ss.setdefault("sales", {})  # period -> sales in INR lakh (optional)
     ss.setdefault("editor_version", 0)
     ss.setdefault("scenarios", [])

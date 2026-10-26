@@ -184,7 +184,11 @@ unit's footprint and the stability of its hotspot ranking (the Study results pag
         """
 - The calculation engine reproduces published arithmetic (CSTEP 2018) and flags, rather than corrects, cells
   where the report disagrees with its own factors.
-- The trust scores are placeholders; the study that tests them has not yet run on real data.
+- The trust scores are placeholders. The study that tests them has been run once on real data, the ASI
+  2023-24 factory returns (reported, not metered; registered factories, not informal units; one year). It
+  shows the placeholder ranges are wrong, and wrong differently for each fuel. See Trust in numbers.
+- No real unit-level energy audit has been obtained. The usability check and the buyer review are
+  written but not run.
 - Data entered here stay in this browser session; download them as a CSV to keep them.
 """
     )

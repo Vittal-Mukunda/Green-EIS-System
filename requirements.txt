@@ -1,4 +1,4 @@
-# Fallback for environments without `pip install -e .[dev]` (pyproject.toml is the source of truth).
+# What the app needs to run (pyproject.toml is the source of truth). Test and lint tools: requirements-dev.txt
 streamlit>=1.50
 plotly>=5.18
 pandas>=2.1
@@ -6,6 +6,3 @@ numpy>=1.26
 scipy>=1.11
 statsmodels>=0.14
 pyyaml>=6.0
-# dev
-pytest>=8.0
-ruff>=0.5

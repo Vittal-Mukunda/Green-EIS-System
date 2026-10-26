@@ -16,6 +16,7 @@ for _path in (Path(__file__).resolve().parents[1] / "src", Path(__file__).resolv
     if _path.is_dir() and str(_path) not in sys.path:
         sys.path.insert(0, str(_path))
 
+import pages_public  # noqa: E402
 import pages_reference  # noqa: E402
 import pages_study  # noqa: E402
 import pages_unit  # noqa: E402
@@ -34,6 +35,11 @@ st.set_page_config(
 
 PAGES = list(vocab.PAGES)
 PAGE_FUNCTIONS = {
+    "Home": pages_public.home,
+    "Research gaps": pages_public.research_gaps,
+    "National picture": pages_public.national_picture,
+    "Trust in numbers": pages_public.trust_in_numbers,
+    "Data and sources": pages_public.data_and_sources,
     "Data entry": pages_unit.data_entry,
     "Summary": pages_unit.summary,
     "Hotspots": pages_unit.hotspots,

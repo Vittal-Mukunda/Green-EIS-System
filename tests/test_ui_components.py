@@ -141,10 +141,10 @@ def test_navigation_css_puts_a_heading_above_the_first_page_of_each_group_only()
     css = nav_css(list(vocab.PAGES))
     for heading in GROUPS:
         assert css.count(f'content:"{heading}"') == 1
-    assert 'nth-child(1) [data-testid="stRadioOption"]::before{content:"edit_note"}' in css
+    assert 'nth-child(1) [data-testid="stRadioOption"]::before{content:"home"}' in css
     subset = nav_css(["Summary", "About"])
     assert 'content:"Unit"' in subset and 'content:"Reference"' in subset
-    assert 'content:"Study"' not in subset
+    assert 'content:"Study"' not in subset and 'content:"Overview"' not in subset
 
 
 def test_the_breadcrumb_names_the_group_and_the_page():
@@ -221,6 +221,7 @@ def test_pages_do_not_write_css_or_html_structure_themselves():
     """Pages call components. Raw markup belongs in dashboard/components/."""
     root = pathlib.Path(__file__).resolve().parents[1] / "dashboard"
     for path in [
+        root / "pages_public.py",
         root / "pages_unit.py",
         root / "pages_study.py",
         root / "pages_reference.py",

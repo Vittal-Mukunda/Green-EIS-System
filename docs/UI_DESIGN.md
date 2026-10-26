@@ -121,3 +121,13 @@ Streamlit's own control.
 - The styling relies on Streamlit's `data-testid` attributes; re-check the pages after an upgrade.
 - Entered data live in the browser session only. A refresh loses them; the Data entry page offers a CSV
   download and upload to keep and restore them.
+
+## 6. Public pages (added 2026-10-26)
+
+`pages_public.py` holds Home, Research gaps, National picture, Trust in numbers and Data and sources, in
+a first group "Overview" (Data and sources sits in Reference). They explain real results in plain words:
+every figure is read from `outputs/study_asi_2023-24*.json` through `greeneis.study.headline`, from
+`src/greeneis/data/national.csv`, or from the CSTEP recomputation in `greeneis.validation`; none is typed
+into a page. A result file marked synthetic is never shown there. Each chart is followed by `in_plain_words`
+(`components/plain.py`): a reading in one or two sentences and a line on how to read the chart. The app opens
+on Home and the unit tool starts empty (`state.init_state`); `state.load_example` loads the labelled example.

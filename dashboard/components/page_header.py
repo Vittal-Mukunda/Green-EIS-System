@@ -13,6 +13,7 @@ BRAND = "GreenEIS"
 
 # The sidebar's groups; also the breadcrumb's first level.
 GROUPS = {
+    "Overview": vocab.OVERVIEW_PAGES,
     "Unit": vocab.UNIT_PAGES,
     "Study": vocab.STUDY_PAGES,
     "Reference": vocab.REFERENCE_PAGES,

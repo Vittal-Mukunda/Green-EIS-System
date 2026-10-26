@@ -90,9 +90,11 @@ src/greeneis/
   whatif.py        activity change / fuel switch / electricity shift; abatement cost
   recommend.py     rule library (ref Table 6.4) with sources and cautions
   report.py        one-page Markdown report with the standing method note
+  national.py      published national estimates (data/national.csv: value, unit, year, source, status)
   study/           cases.py (input shape), proxies.py (leave-one-out), outcomes.py (profiles, H5),
                    analysis.py (H1-H5, cluster bootstrap, Holm), asi.py (ASI reader and case table),
-                   synthetic.py, run.py (CLI: --source synthetic | csv | asi; --only-sector for exploratory cuts)
+                   synthetic.py, run.py (CLI: --source synthetic | csv | asi; --only-sector for exploratory cuts),
+                   headline.py (plain readings of a result JSON for the public pages)
 dashboard/         the interface (see docs/UI_DESIGN.md)
 tests/             130+ tests; hand-worked literals; see the docstring at the top of each file
 docs/              FINDINGS, DATA_TO_COLLECT, RESEARCH_DESIGN, RESULTS_ASI_2023-24, PHASE1_SPEC,
@@ -122,7 +124,8 @@ C:/Users/vitta/greeneis-data/asi/ASI24m.TXT   the 610 MB ASI file, kept OUTSIDE 
 | Validation | all 56 CSTEP Table 8 cells recomputed: 43 match, 13 flagged (furnace oil 2012-13 on, naphtha all years, LPG 2015-16); causes unknown (V-06, V-22) |
 | Trust, hotspots, cost, what-if, recommendations, report | built and tested; trust values are placeholders (V-11) |
 | Study harness H1-H5 | built and tested; **run on real data (ASI 2023-24) on 2026-10-25**, exactly as pre-specified: all five supported, with caveats (H5 rests on 67 factories, H3 is largely structural, pooled results are 90% electricity); see `docs/RESULTS_ASI_2023-24.md` |
-| Dashboard | eight pages on the kept design system; verified in the browser and by AppTest |
+| Dashboard | thirteen pages on the kept design system; verified in the browser and by AppTest |
+| Public site | 2026-10-26: Home, Research gaps (seven gaps with modest statuses), National picture, Trust in numbers, Data and sources (`dashboard/pages_public.py`); real aggregates only; unit tool starts empty; deployment on Streamlit Community Cloud needs the owner (README "Host it") |
 | Data gate (1a) | **met for one year**: the ASI 2023-24 file is public and was downloaded (V-18: terms still unread). BEE unit audits remain unavailable (V-08); the Wayback copies are rate-limited (V-36) |
 | Sector and data plan | decided 2026-10-26: primary sector textile wet processing (NIC 13), bricks as motivating case; list of data to collect in `docs/DATA_TO_COLLECT.md`; consolidated findings in `docs/FINDINGS.md` |
 | Textile cut (exploratory) | run 2026-10-26 as declared in RESEARCH_DESIGN §10: H1-H3 supported, H4 not supported (100 factories), H5 insufficient data (5); `outputs/study_asi_2023-24_explor_nic13.json` |

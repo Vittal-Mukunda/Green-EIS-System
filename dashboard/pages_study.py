@@ -72,6 +72,13 @@ def study_results(ctx: state.Context) -> None:
     prov = result["provenance"]
     if prov["synthetic"]:
         callout("danger", "Synthetic data.", prov["banner"])
+    if prov.get("only_sector"):
+        callout(
+            "warn",
+            "Exploratory cut.",
+            f"Only factories in industry division {prov['only_sector']} (declared in the research design "
+            "before it was run). Treat as exploratory, not confirmatory.",
+        )
     stat_strip(
         [
             ("Data source", prov["source"], "synthetic" if prov["synthetic"] else "not synthetic"),
