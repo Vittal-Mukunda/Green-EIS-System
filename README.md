@@ -34,6 +34,7 @@ The previous project is archived as the git tag `archive/llm-gauge`.
 | [docs/RESEARCH_DESIGN.md](docs/RESEARCH_DESIGN.md) | question, hypotheses H1-H5, threats, change log |
 | [docs/RESULTS_ASI_2023-24.md](docs/RESULTS_ASI_2023-24.md) | first real-data results and their caveats |
 | [docs/DATA_INVENTORY.md](docs/DATA_INVENTORY.md), [docs/ASI_OPTION.md](docs/ASI_OPTION.md) | what data exist and how ASI is used |
+| [docs/USABILITY_AND_BUYER_CHECK.md](docs/USABILITY_AND_BUYER_CHECK.md) | protocol for the owner usability check and the buyer/lender review |
 | [docs/STUDY_RUNBOOK.md](docs/STUDY_RUNBOOK.md), [docs/VERIFY.md](docs/VERIFY.md) | owner's steps; unverified-items register |
 | [docs/UI_DESIGN.md](docs/UI_DESIGN.md), [docs/PHASE1_SPEC.md](docs/PHASE1_SPEC.md) | interface and engine specification |
 

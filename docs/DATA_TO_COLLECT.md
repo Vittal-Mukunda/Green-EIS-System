@@ -83,7 +83,7 @@ missing and is counted, not filled.
 
 | # | What | Use |
 |---|---|---|
-| D1 | A 3-5 person usability check of the data-entry page (can an owner with bills fill it in; do they understand the trust label) | The monthly workflow is otherwise a design feature, not a tested one |
+| D1 | A 3-5 person usability check of the data-entry page (can an owner with bills fill it in; do they understand the trust label), plus a 1-3 person buyer or lender review of the report. Protocol fixed in [USABILITY_AND_BUYER_CHECK.md](USABILITY_AND_BUYER_CHECK.md) | The monthly workflow and the report are otherwise design features, not tested ones (gaps 1, 4, 7) |
 | D2 | One or two interviews or site notes in the cluster about what records a unit actually keeps | Grounds the four data-quality profiles (`bills_only`, `minimal`, `invoices_main`, `random_mix`), which are assumptions today (V-27) |
 
 ## What each item unblocks
